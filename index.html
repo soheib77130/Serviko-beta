@@ -197,10 +197,50 @@
     .cat h3{margin:0; font-size:15px; letter-spacing:-.15px}
     .cat p{margin:0; color:var(--muted); font-weight:650; font-size:13px}
 
+    .searchBar{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin: 6px 0 12px;
+    }
+    .searchBar input{
+      flex: 1 1 220px;
+      padding:12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(17,24,39,.55);
+      color:var(--text);
+      font-weight:650;
+    }
+    .searchMeta{color:var(--muted); font-weight:700}
+
     .cards2{
       display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;
     }
     @media (max-width: 900px){ .cards2{grid-template-columns:1fr} }
+
+    .splitIntro{
+      display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;
+    }
+    @media (max-width: 900px){ .splitIntro{grid-template-columns:1fr} }
+    .splitCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.52);
+      border-radius: var(--radius);
+      padding:18px;
+      display:grid; gap:12px;
+    }
+    .splitHeader{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .splitHeader strong{font-size:18px}
+    .chip{
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.22);
+      color:#c8f5d7;
+      font-weight:800;
+      font-size:12px;
+    }
 
     .card{
       border:1px solid rgba(255,255,255,.10);
@@ -236,6 +276,166 @@
     }
     .step h3{margin:0 0 6px}
     .step p{margin:0; color:var(--muted); font-weight:650}
+
+    .serviceGrid{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;
+    }
+    @media (max-width: 980px){ .serviceGrid{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .serviceGrid{grid-template-columns: 1fr} }
+
+    .serviceCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.45);
+      border-radius: 18px;
+      padding:16px;
+      display:grid; gap:10px;
+    }
+    .serviceTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .tag{
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(96,165,250,.15);
+      border:1px solid rgba(96,165,250,.22);
+      color:#cfe6ff;
+      font-weight:800;
+      font-size:12px;
+    }
+    .priceRow{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      color:var(--muted); font-weight:700;
+    }
+    .priceRow strong{color:var(--text)}
+
+    .flow{
+      display:grid; gap:12px;
+    }
+    .flowCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.48);
+      border-radius: 18px;
+      padding:16px;
+      display:grid; gap:10px;
+    }
+    .flowSteps{
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;
+    }
+    @media (max-width: 980px){ .flowSteps{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .flowSteps{grid-template-columns: 1fr} }
+    .flowStep{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(10,14,22,.30);
+      border-radius: 16px;
+      padding:14px;
+      display:grid; gap:8px;
+    }
+
+    .qcm{
+      display:grid; gap:12px;
+    }
+    .qcmRow{
+      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
+    }
+    @media (max-width: 640px){ .qcmRow{grid-template-columns: 1fr} }
+    .qcmLabel{color:var(--muted); font-weight:700; font-size:13px}
+    .qcmOptions{display:flex; gap:8px; flex-wrap:wrap}
+    .qcmOptions button{
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(17,24,39,.55);
+      color:var(--text);
+      font-weight:700;
+      cursor:pointer;
+    }
+    .qcmOptions button.active{
+      border-color: rgba(96,165,250,.35);
+      background: rgba(96,165,250,.18);
+    }
+
+    .matchCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.55);
+      border-radius: 18px;
+      padding:16px;
+      display:grid; gap:10px;
+    }
+    .matchHeader{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .matchMeta{color:var(--muted); font-weight:700; font-size:13px}
+    .matchSkills{display:flex; gap:8px; flex-wrap:wrap}
+    .skill{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight:700; font-size:12px;
+    }
+
+    .calc{
+      display:grid; gap:10px;
+    }
+    .calcRow{
+      display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center;
+    }
+    .calcRow input{
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(17,24,39,.6);
+      color:var(--text);
+      font-weight:700;
+    }
+    .calcResult{
+      padding:10px 12px;
+      border-radius: 12px;
+      background: rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.22);
+      color:#c8f5d7;
+      font-weight:800;
+    }
+
+    .faq{
+      display:grid; gap:10px;
+    }
+    .faqItem{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      background: rgba(17,24,39,.45);
+      overflow:hidden;
+    }
+    .faqQuestion{
+      width:100%;
+      background:none;
+      color:var(--text);
+      border:0;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+      padding:14px 16px;
+      cursor:pointer;
+      font-weight:800;
+    }
+    .faqAnswer{
+      display:none;
+      padding:0 16px 14px;
+      color:var(--muted);
+      font-weight:650;
+    }
+    .faqItem.open .faqAnswer{display:block}
+
+    .formGrid{
+      display:grid; gap:10px;
+    }
+    .formGrid input,
+    .formGrid textarea{
+      width:100%;
+      padding:12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(17,24,39,.6);
+      color:var(--text);
+      font-weight:650;
+      font-family: inherit;
+    }
+    .formGrid textarea{min-height:120px; resize:vertical}
 
     footer{
       margin:26px 0 10px;
@@ -343,6 +543,11 @@
         <div class="hint">Choisissez une catégorie — on va droit au but.</div>
       </div>
 
+      <div class="searchBar">
+        <input id="catSearch" type="search" placeholder="Rechercher une catégorie (ex : logo, site, vidéo…)" aria-label="Rechercher une catégorie" />
+        <div class="searchMeta" id="catCount">5 catégories</div>
+      </div>
+
       <div class="grid5" role="list">
         <button class="cat" type="button" data-cat="Site Web" role="listitem">
           <div class="catTop">
@@ -388,6 +593,229 @@
           <h3>Autres services</h3>
           <p>Tout le reste, simple.</p>
         </button>
+      </div>
+    </section>
+
+    <!-- DOUBLE ESPACE -->
+    <section id="espace" class="section">
+      <div class="sectionTitle">
+        <h2>Deux espaces, une seule plateforme</h2>
+        <div class="hint">Clients et indépendants, chacun son parcours.</div>
+      </div>
+
+      <div class="splitIntro">
+        <article class="splitCard">
+          <div class="splitHeader">
+            <strong>Espace client</strong>
+            <span class="chip">Je cherche une prestation</span>
+          </div>
+          <p class="sub" style="margin:0">Choisissez votre besoin, répondez à un mini QCM et Serviko propose l’indépendant le plus adapté.</p>
+          <ul>
+            <li>✅ <small>Questionnaire rapide</small></li>
+            <li>✅ <small>Proposition de prix instantanée</small></li>
+            <li>✅ <small>Comparatif d’indépendants</small></li>
+          </ul>
+          <button class="btn primary" type="button" data-journey="client">Accéder à l’espace client</button>
+        </article>
+
+        <article class="splitCard">
+          <div class="splitHeader">
+            <strong>Espace indépendant</strong>
+            <span class="chip">Je propose mes services</span>
+          </div>
+          <p class="sub" style="margin:0">Mettez en avant vos compétences, recevez des demandes filtrées et validez le prix proposé.</p>
+          <ul>
+            <li>✅ <small>Profil + avis + points forts</small></li>
+            <li>✅ <small>Projets compatibles seulement</small></li>
+            <li>✅ <small>Prix négociable en direct</small></li>
+          </ul>
+          <button class="btn" type="button" data-journey="indep">Accéder à l’espace indépendant</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- FLOW -->
+    <section id="parcours" class="section">
+      <div class="sectionTitle">
+        <h2>Parcours simple : du besoin à la mise en relation</h2>
+        <div class="hint">On garde l’ADN Serviko : rapide, clair, sans friction.</div>
+      </div>
+
+      <div class="flow">
+        <div class="flowSteps">
+          <div class="flowStep">
+            <strong>1. Choix du service</strong>
+            <p class="hint">Site, logo, vidéo… vous sélectionnez dès l’accueil.</p>
+          </div>
+          <div class="flowStep">
+            <strong>2. Mini QCM</strong>
+            <p class="hint">3–4 questions pour clarifier besoin, budget, délai.</p>
+          </div>
+          <div class="flowStep">
+            <strong>3. Match intelligent</strong>
+            <p class="hint">L’algorithme propose les profils les plus adaptés.</p>
+          </div>
+          <div class="flowStep">
+            <strong>4. Prix négocié</strong>
+            <p class="hint">Serviko propose un prix, les deux côtés ajustent.</p>
+          </div>
+        </div>
+
+        <div class="flowCard">
+          <strong>Exemple de QCM rapide</strong>
+          <div class="qcm">
+            <div class="qcmRow">
+              <div>
+                <div class="qcmLabel">Type de prestation</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn active">Site vitrine</button>
+                  <button type="button" class="qcmBtn">E-commerce</button>
+                  <button type="button" class="qcmBtn">Landing page</button>
+                </div>
+              </div>
+              <div>
+                <div class="qcmLabel">Délai souhaité</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn">7 jours</button>
+                  <button type="button" class="qcmBtn active">14 jours</button>
+                  <button type="button" class="qcmBtn">1 mois+</button>
+                </div>
+              </div>
+            </div>
+            <div class="qcmRow">
+              <div>
+                <div class="qcmLabel">Budget estimé</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn">€150-300</button>
+                  <button type="button" class="qcmBtn active">€300-600</button>
+                  <button type="button" class="qcmBtn">€600+</button>
+                </div>
+              </div>
+              <div>
+                <div class="qcmLabel">Style recherché</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn active">Minimaliste</button>
+                  <button type="button" class="qcmBtn">Luxe</button>
+                  <button type="button" class="qcmBtn">Impact visuel</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn primary" type="button" data-journey="qcm">Valider mon QCM</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MATCH -->
+    <section id="match" class="section">
+      <div class="sectionTitle">
+        <h2>Mise en relation intelligente</h2>
+        <div class="hint">L’algorithme met en avant le meilleur profil pour votre besoin.</div>
+      </div>
+
+      <div class="serviceGrid">
+        <article class="matchCard">
+          <div class="matchHeader">
+            <strong>Naël — UX/UI & Webflow</strong>
+            <span class="tag">98% avis positifs</span>
+          </div>
+          <div class="matchMeta">Points forts : rapidité, design minimaliste, conversion.</div>
+          <div class="matchSkills">
+            <span class="skill">Webflow</span>
+            <span class="skill">UI/UX</span>
+            <span class="skill">SEO</span>
+          </div>
+          <div class="priceRow">
+            <span>Prix proposé par Serviko</span>
+            <strong>€320</strong>
+          </div>
+          <button class="btn" type="button" data-journey="match">Discuter le prix</button>
+        </article>
+
+        <article class="matchCard">
+          <div class="matchHeader">
+            <strong>Maya — Branding & Logo</strong>
+            <span class="tag">4.9/5</span>
+          </div>
+          <div class="matchMeta">Points forts : identité visuelle, sens du détail, livrables rapides.</div>
+          <div class="matchSkills">
+            <span class="skill">Logo</span>
+            <span class="skill">Charte</span>
+            <span class="skill">Illustration</span>
+          </div>
+          <div class="priceRow">
+            <span>Prix proposé par Serviko</span>
+            <strong>€210</strong>
+          </div>
+          <button class="btn" type="button" data-journey="match">Discuter le prix</button>
+        </article>
+
+        <article class="matchCard">
+          <div class="matchHeader">
+            <strong>Yanis — Vidéo & Motion</strong>
+            <span class="tag">Spécialiste réseaux sociaux</span>
+          </div>
+          <div class="matchMeta">Points forts : montage dynamique, storytelling court, livraison express.</div>
+          <div class="matchSkills">
+            <span class="skill">After Effects</span>
+            <span class="skill">Shorts</span>
+            <span class="skill">Sound design</span>
+          </div>
+          <div class="priceRow">
+            <span>Prix proposé par Serviko</span>
+            <strong>€190</strong>
+          </div>
+          <button class="btn" type="button" data-journey="match">Discuter le prix</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="section">
+      <div class="sectionTitle">
+        <h2>Services populaires</h2>
+        <div class="hint">Des indépendants prêts à répondre aujourd’hui.</div>
+      </div>
+
+      <div class="serviceGrid">
+        <article class="serviceCard">
+          <div class="serviceTop">
+            <strong>Landing page efficace</strong>
+            <span class="tag">Web</span>
+          </div>
+          <div class="priceRow">
+            <span>Délais 5 jours</span>
+            <strong>€250</strong>
+          </div>
+          <p class="sub" style="margin:0">Structure claire, design moderne, optimisation mobile.</p>
+          <button class="btn" type="button" data-quote="Landing page efficace">Demander un devis</button>
+        </article>
+
+        <article class="serviceCard">
+          <div class="serviceTop">
+            <strong>Logo & mini-branding</strong>
+            <span class="tag">Design</span>
+          </div>
+          <div class="priceRow">
+            <span>Délais 3 jours</span>
+            <strong>€120</strong>
+          </div>
+          <p class="sub" style="margin:0">3 propositions, fichiers prêts pour le web et l’impression.</p>
+          <button class="btn" type="button" data-quote="Logo & mini-branding">Demander un devis</button>
+        </article>
+
+        <article class="serviceCard">
+          <div class="serviceTop">
+            <strong>Montage vidéo dynamique</strong>
+            <span class="tag">Vidéo</span>
+          </div>
+          <div class="priceRow">
+            <span>Délais 4 jours</span>
+            <strong>€180</strong>
+          </div>
+          <p class="sub" style="margin:0">Titres animés, rythme rapide, format réseaux sociaux.</p>
+          <button class="btn" type="button" data-quote="Montage vidéo dynamique">Demander un devis</button>
+        </article>
       </div>
     </section>
 
@@ -449,6 +877,61 @@
       </div>
     </section>
 
+    <!-- CALCULATOR -->
+    <section id="simulateur" class="section">
+      <div class="sectionTitle">
+        <h2>Simulateur de commission</h2>
+        <div class="hint">Vérifiez en 2 secondes ce que vous gardez.</div>
+      </div>
+
+      <div class="card calc">
+        <div class="calcRow">
+          <label for="calcAmount" class="hint">Montant du service (€)</label>
+          <input id="calcAmount" type="number" min="0" step="10" value="300" />
+        </div>
+        <div class="calcRow">
+          <span class="hint">Commission Serviko (2%)</span>
+          <span class="calcResult" id="calcFee">€6</span>
+        </div>
+        <div class="calcRow">
+          <span class="hint">Vous gardez</span>
+          <span class="calcResult" id="calcNet">€294</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section">
+      <div class="sectionTitle">
+        <h2>Questions fréquentes</h2>
+        <div class="hint">Des réponses courtes, comme Serviko.</div>
+      </div>
+
+      <div class="faq">
+        <div class="faqItem">
+          <button class="faqQuestion" type="button">
+            Comment se passe le paiement ?
+            <span>+</span>
+          </button>
+          <div class="faqAnswer">Le client paie via la plateforme. L’indépendant est payé dès la livraison validée.</div>
+        </div>
+        <div class="faqItem">
+          <button class="faqQuestion" type="button">
+            Pourquoi seulement 2% ?
+            <span>+</span>
+          </button>
+          <div class="faqAnswer">Serviko est pensé minimaliste : pas d’intermédiaires inutiles, donc des frais réduits.</div>
+        </div>
+        <div class="faqItem">
+          <button class="faqQuestion" type="button">
+            Puis-je échanger avant de commander ?
+            <span>+</span>
+          </button>
+          <div class="faqAnswer">Oui. Messagerie directe pour clarifier le besoin, délai, et prix.</div>
+        </div>
+      </div>
+    </section>
+
     <!-- CONTACT -->
     <section id="contact" class="section">
       <div class="sectionTitle">
@@ -461,6 +944,12 @@
           Écrivez-nous : <strong>contact@serviko.com</strong> (à remplacer)<br/>
           Ou ajoutez ici un formulaire plus tard.
         </p>
+        <form class="formGrid" id="contactForm">
+          <input type="text" name="name" placeholder="Votre nom" required />
+          <input type="email" name="email" placeholder="Votre email" required />
+          <textarea name="message" placeholder="Votre message (projet, budget, délai)"></textarea>
+          <button class="btn primary" type="submit">Envoyer une demande</button>
+        </form>
       </div>
     </section>
 
@@ -495,11 +984,21 @@
 
     // Catégories (exemple : ouvrir une page / filtrer / afficher une liste)
     const cats = document.querySelectorAll(".cat");
+    const catSearch = document.getElementById("catSearch");
+    const catCount = document.getElementById("catCount");
     const modalBackdrop = document.getElementById("modalBackdrop");
     const modalTitle = document.getElementById("modalTitle");
     const modalText = document.getElementById("modalText");
     const btnClose = document.getElementById("btnClose");
     const btnBecome = document.getElementById("btnBecome");
+    const quoteButtons = document.querySelectorAll("[data-quote]");
+    const journeyButtons = document.querySelectorAll("[data-journey]");
+    const qcmButtons = document.querySelectorAll(".qcmBtn");
+    const faqButtons = document.querySelectorAll(".faqQuestion");
+    const calcAmount = document.getElementById("calcAmount");
+    const calcFee = document.getElementById("calcFee");
+    const calcNet = document.getElementById("calcNet");
+    const contactForm = document.getElementById("contactForm");
 
     function openModal(title, text){
       modalTitle.textContent = title;
@@ -524,6 +1023,83 @@
     btnBecome.addEventListener("click", () => {
       openModal("Devenir indépendant", "Exemple : rediriger vers la page d'inscription / création de profil.");
     });
+
+    quoteButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const service = btn.getAttribute("data-quote");
+        openModal("Demande de devis", `Demande rapide pour : “${service}”.`);
+      });
+    });
+
+    journeyButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const journey = btn.getAttribute("data-journey");
+        const messages = {
+          client: "Accès client : sélectionnez une catégorie puis répondez au QCM pour recevoir un match.",
+          indep: "Accès indépendant : créez votre profil, ajoutez vos compétences et recevez des demandes filtrées.",
+          qcm: "Votre QCM est enregistré. L’algorithme prépare la sélection d’indépendants.",
+          match: "Discussion ouverte : le prix proposé peut être ajusté par les deux parties."
+        };
+        openModal("Parcours Serviko", messages[journey] || "Parcours Serviko en préparation.");
+      });
+    });
+
+    qcmButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const group = btn.closest(".qcmOptions");
+        if (!group) return;
+        group.querySelectorAll(".qcmBtn").forEach(item => item.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
+    faqButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const item = btn.closest(".faqItem");
+        item.classList.toggle("open");
+      });
+    });
+
+    function updateCatCount(visible){
+      const total = cats.length;
+      catCount.textContent = `${visible} catégorie${visible > 1 ? "s" : ""} / ${total}`;
+    }
+
+    if (catSearch){
+      updateCatCount(cats.length);
+      catSearch.addEventListener("input", () => {
+        const query = catSearch.value.toLowerCase().trim();
+        let visible = 0;
+        cats.forEach(btn => {
+          const text = btn.textContent.toLowerCase();
+          const match = text.includes(query);
+          btn.style.display = match ? "" : "none";
+          if(match) visible += 1;
+        });
+        updateCatCount(visible);
+      });
+    }
+
+    function updateCalc(){
+      const amount = Number(calcAmount.value || 0);
+      const fee = Math.max(0, amount * 0.02);
+      const net = Math.max(0, amount - fee);
+      calcFee.textContent = `€${fee.toFixed(2)}`;
+      calcNet.textContent = `€${net.toFixed(2)}`;
+    }
+
+    if (calcAmount){
+      updateCalc();
+      calcAmount.addEventListener("input", updateCalc);
+    }
+
+    if (contactForm){
+      contactForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        openModal("Message envoyé", "Merci ! Nous revenons vers vous rapidement.");
+        contactForm.reset();
+      });
+    }
 
     btnClose.addEventListener("click", closeModal);
     modalBackdrop.addEventListener("click", (e) => {
