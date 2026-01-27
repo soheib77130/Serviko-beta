@@ -235,26 +235,6 @@
     .clientCard h3{margin:0; font-size:18px}
     .clientCard p{margin:0; color:var(--muted); font-weight:650}
 
-    .clientForms{
-      display:grid;
-      gap:16px;
-      margin-top:16px;
-    }
-    .formCard{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(17,24,39,.5);
-      border-radius: var(--radius);
-      padding:18px;
-      display:grid; gap:12px;
-    }
-    .formCard h3{margin:0}
-    .formRow{
-      display:grid; gap:10px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    @media (max-width: 640px){ .formRow{grid-template-columns:1fr} }
-    .formCard .btn{justify-self:start}
-
     .note{
       border:1px dashed rgba(96,165,250,.4);
       background: rgba(96,165,250,.08);
@@ -960,7 +940,7 @@
       </div>
 
       <div class="note">
-        ✅ Tu as maintenant des sections dédiées pour l’inscription, la connexion et le tableau de bord client.
+        ✅ Tu as maintenant des pages dédiées pour l’inscription, la connexion et le tableau de bord client.
       </div>
 
       <div class="clientGrid" style="margin-top:12px">
@@ -972,7 +952,7 @@
             <li>✅ <small>Accès au QCM</small></li>
             <li>✅ <small>Suivi des demandes</small></li>
           </ul>
-          <a class="btn primary" href="#client-signup">S’inscrire</a>
+          <a class="btn primary" href="signup.html">S’inscrire</a>
         </article>
 
         <article class="clientCard">
@@ -983,7 +963,7 @@
             <li>✅ <small>Historique des services</small></li>
             <li>✅ <small>Factures et paiements</small></li>
           </ul>
-          <a class="btn" href="#client-login">Connexion</a>
+          <a class="btn" href="login.html">Connexion</a>
         </article>
 
         <article class="clientCard">
@@ -994,60 +974,7 @@
             <li>✅ <small>Validation livraison</small></li>
             <li>✅ <small>Support prioritaire</small></li>
           </ul>
-          <a class="btn" href="#client-dashboard">Voir mon espace</a>
-        </article>
-      </div>
-
-      <div class="clientForms">
-        <article class="formCard" id="client-signup">
-          <h3>Inscription client</h3>
-          <p class="hint">Créez votre compte pour lancer votre première demande.</p>
-          <form class="formGrid" id="clientSignupForm">
-            <div class="formRow">
-              <input type="text" name="firstname" placeholder="Prénom" required />
-              <input type="text" name="lastname" placeholder="Nom" required />
-            </div>
-            <div class="formRow">
-              <input type="email" name="email" placeholder="Email" required />
-              <input type="tel" name="phone" placeholder="Téléphone" />
-            </div>
-            <input type="text" name="company" placeholder="Nom de l'entreprise (optionnel)" />
-            <button class="btn primary" type="submit">Créer mon compte</button>
-          </form>
-        </article>
-
-        <article class="formCard" id="client-login">
-          <h3>Connexion client</h3>
-          <p class="hint">Accédez à vos demandes, devis et échanges.</p>
-          <form class="formGrid" id="clientLoginForm">
-            <input type="email" name="login-email" placeholder="Email" required />
-            <input type="password" name="login-password" placeholder="Mot de passe" required />
-            <button class="btn" type="submit">Se connecter</button>
-          </form>
-        </article>
-
-        <article class="formCard" id="client-dashboard">
-          <h3>Tableau de bord client</h3>
-          <p class="hint">Résumé rapide de votre activité (exemple statique).</p>
-          <div class="cards2">
-            <div class="card">
-              <h3>Demandes actives</h3>
-              <ul>
-                <li>2 <small>prestations en cours</small></li>
-                <li>1 <small>en attente de devis</small></li>
-                <li>3 <small>messages non lus</small></li>
-              </ul>
-            </div>
-            <div class="card">
-              <h3>Actions rapides</h3>
-              <ul>
-                <li>✅ <small>Valider une livraison</small></li>
-                <li>✅ <small>Relancer un indépendant</small></li>
-                <li>✅ <small>Télécharger une facture</small></li>
-              </ul>
-              <button class="btn" type="button" data-journey="dashboard-client">Ouvrir le suivi</button>
-            </div>
-          </div>
+          <a class="btn" href="dashboard.html">Voir mon espace</a>
         </article>
       </div>
     </section>
@@ -1178,8 +1105,6 @@
     const clearCategory = document.getElementById("clearCategory");
     const serviceCount = document.getElementById("serviceCount");
     const noServices = document.getElementById("noServices");
-    const clientSignupForm = document.getElementById("clientSignupForm");
-    const clientLoginForm = document.getElementById("clientLoginForm");
     const contactForm = document.getElementById("contactForm");
 
     function openModal(title, text){
@@ -1310,22 +1235,6 @@
 
     if (serviceCards.length){
       filterServices("");
-    }
-
-    if (clientSignupForm){
-      clientSignupForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        openModal("Inscription client", "Compte créé (démo). Vous pouvez maintenant déposer votre demande.");
-        clientSignupForm.reset();
-      });
-    }
-
-    if (clientLoginForm){
-      clientLoginForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        openModal("Connexion client", "Connexion réussie (démo). Accédez à votre tableau de bord.");
-        clientLoginForm.reset();
-      });
     }
 
     if (contactForm){
