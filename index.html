@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Serviko — Services indépendants, simplement</title>
+  <meta name="description" content="Serviko : commandez un service auprès d'indépendants en quelques clics. Seulement 2% de frais." />
+
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#111827;
+      --muted:#9ca3af;
+      --text:#e5e7eb;
+      --line:#1f2937;
+      --accent:#22c55e;
+      --accent2:#60a5fa;
+      --danger:#fb7185;
+      --radius:18px;
+      --shadow: 0 16px 40px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(96,165,250,.18), transparent 55%),
+                  radial-gradient(900px 700px at 80% 0%, rgba(34,197,94,.16), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.35;
+    }
+    a{color:inherit; text-decoration:none}
+    .container{max-width:1100px; margin:0 auto; padding:22px}
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px; padding:10px 0 6px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px;
+    }
+    .logo{
+      width:36px; height:36px; border-radius:12px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      box-shadow: 0 10px 24px rgba(96,165,250,.2);
+      display:grid; place-items:center;
+      font-weight:900; color:#071018;
+    }
+    .navlinks{display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-weight:600}
+    .navlinks a{padding:8px 10px; border-radius:12px}
+    .navlinks a:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border:1px solid rgba(255,255,255,.10);
+      border-radius:999px; color:var(--text); background:rgba(17,24,39,.65);
+      backdrop-filter: blur(8px);
+      font-weight:700;
+    }
+    .pill .dot{
+      width:8px; height:8px; border-radius:999px; background:var(--accent);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.15);
+    }
+
+    .hero{
+      margin-top:18px;
+      background: linear-gradient(180deg, rgba(17,24,39,.78), rgba(17,24,39,.56));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:28px;
+      overflow:hidden;
+      position:relative;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-1px;
+      background: radial-gradient(900px 260px at 20% 0%, rgba(96,165,250,.18), transparent 55%),
+                  radial-gradient(800px 280px at 85% 10%, rgba(34,197,94,.16), transparent 55%);
+      pointer-events:none;
+    }
+    .hero > *{position:relative}
+    .heroGrid{display:grid; grid-template-columns: 1.15fr .85fr; gap:18px; align-items:start}
+    @media (max-width: 900px){ .heroGrid{grid-template-columns:1fr} }
+
+    h1{
+      margin:14px 0 8px;
+      font-size: clamp(30px, 3.4vw, 54px);
+      line-height:1.05;
+      letter-spacing:-.6px;
+    }
+    .sub{
+      color: var(--muted);
+      font-size: clamp(14px, 1.15vw, 18px);
+      margin: 0 0 18px;
+      max-width: 60ch;
+    }
+    .ctaRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      font-weight:800;
+      cursor:pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    .btn:hover{background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.16)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-color: rgba(255,255,255,.0);
+      color:#061019;
+    }
+    .btn.primary:hover{filter: brightness(1.03)}
+    .kpiCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(10,14,22,.35);
+      border-radius: var(--radius);
+      padding:18px;
+      display:grid; gap:10px;
+      backdrop-filter: blur(8px);
+    }
+    .kpiTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .badge2{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background: rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.22);
+      color: #baf7cd;
+      font-weight:900;
+      letter-spacing:.2px;
+      white-space:nowrap;
+    }
+    .badge2 small{opacity:.85; font-weight:800}
+    .bigNum{font-size: 44px; font-weight: 950; letter-spacing:-.8px}
+    .kpiText{color:var(--muted); font-weight:650}
+    .kpiList{display:grid; gap:8px; margin-top:6px}
+    .check{
+      display:flex; gap:10px; align-items:flex-start;
+      color: var(--text);
+      font-weight:700;
+    }
+    .check span{
+      width:22px; height:22px; border-radius:8px;
+      display:grid; place-items:center;
+      background: rgba(96,165,250,.12);
+      border:1px solid rgba(96,165,250,.18);
+      flex: 0 0 auto;
+      margin-top:1px;
+      font-size:14px;
+    }
+    .check em{color:var(--muted); font-style:normal; font-weight:650}
+
+    .section{margin-top:22px}
+    .sectionTitle{
+      display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin: 0 0 10px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-size: 20px;
+      letter-spacing:-.2px;
+    }
+    .hint{color:var(--muted); font-weight:650}
+
+    .grid5{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 980px){ .grid5{grid-template-columns: repeat(3, 1fr)} }
+    @media (max-width: 640px){ .grid5{grid-template-columns: repeat(2, 1fr)} }
+
+    .cat{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.55);
+      border-radius: 18px;
+      padding:14px;
+      min-height: 92px;
+      display:flex; flex-direction:column; gap:10px;
+      cursor:pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+    }
+    .cat:hover{background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16)}
+    .cat:active{transform: translateY(1px)}
+    .catTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .icon{
+      width:36px; height:36px; border-radius:14px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      font-size:18px;
+    }
+    .cat h3{margin:0; font-size:15px; letter-spacing:-.15px}
+    .cat p{margin:0; color:var(--muted); font-weight:650; font-size:13px}
+
+    .cards2{
+      display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;
+    }
+    @media (max-width: 900px){ .cards2{grid-template-columns:1fr} }
+
+    .card{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.50);
+      border-radius: var(--radius);
+      padding:18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .card h3{margin:0 0 6px; font-size:18px; letter-spacing:-.2px}
+    .card ul{margin:10px 0 0; padding:0; list-style:none; display:grid; gap:8px}
+    .card li{color:var(--text); font-weight:700}
+    .card li small{color:var(--muted); font-weight:650}
+    .card .btn{margin-top:12px}
+
+    .how{
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;
+    }
+    @media (max-width: 900px){ .how{grid-template-columns:1fr} }
+
+    .step{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(10,14,22,.30);
+      border-radius: var(--radius);
+      padding:16px;
+    }
+    .stepNum{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px; border-radius:12px;
+      background: rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.22);
+      font-weight:950;
+      margin-bottom:10px;
+    }
+    .step h3{margin:0 0 6px}
+    .step p{margin:0; color:var(--muted); font-weight:650}
+
+    footer{
+      margin:26px 0 10px;
+      padding:18px 0 0;
+      border-top: 1px solid rgba(255,255,255,.08);
+      color: var(--muted);
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      font-weight:650;
+    }
+    footer .links{display:flex; gap:12px; flex-wrap:wrap}
+    footer .links a{padding:8px 10px; border-radius:12px}
+    footer .links a:hover{background: rgba(255,255,255,.06); color:var(--text)}
+
+    /* petit modal (optionnel) */
+    .modalBackdrop{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center; justify-content:center;
+      padding:18px;
+      z-index:99;
+    }
+    .modal{
+      width:min(560px, 100%);
+      border-radius: 20px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(17,24,39,.92);
+      box-shadow: var(--shadow);
+      padding:16px;
+      backdrop-filter: blur(10px);
+    }
+    .modalHeader{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+    .modal h3{margin:0}
+    .modal p{margin:8px 0 0; color:var(--muted); font-weight:650}
+    .close{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      border-radius: 12px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:800;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- NAV -->
+    <header class="nav">
+      <a class="brand" href="#top" aria-label="Serviko">
+        <div class="logo">S</div>
+        <div>Serviko</div>
+      </a>
+
+      <nav class="navlinks" aria-label="Navigation">
+        <a href="#comment">Comment ça marche</a>
+        <a href="#pourquoi">Pourquoi Serviko</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <main id="top" class="hero">
+      <div class="heroGrid">
+        <div>
+          <span class="pill"><span class="dot"></span> Plateforme de services indépendants</span>
+          <h1>Commandez un service. <br/>Simplement.</h1>
+          <p class="sub">
+            Des indépendants. Des prix justes. <strong>Seulement 2% de frais.</strong><br/>
+            Site web, logo, vidéo, rédaction… en quelques clics.
+          </p>
+
+          <div class="ctaRow">
+            <a class="btn primary" href="#categories">Trouver un service</a>
+            <a class="btn" href="#pro">Proposer mes services</a>
+          </div>
+
+          <div class="ctaRow" style="margin-top:12px">
+            <a class="btn" href="#pourquoi">Voir les 2% en détail</a>
+          </div>
+        </div>
+
+        <aside class="kpiCard" aria-label="Frais et avantages">
+          <div class="kpiTop">
+            <div class="badge2">✅ <small>Commission</small> 2%</div>
+            <div style="color:var(--muted); font-weight:800">Transparent</div>
+          </div>
+          <div class="bigNum">2%</div>
+          <div class="kpiText">Pas d’abonnement. Pas de frais cachés. Vous gardez l’essentiel.</div>
+
+          <div class="kpiList">
+            <div class="check"><span>✓</span> <div>Indépendants : <em>vous gardez 98%</em></div></div>
+            <div class="check"><span>✓</span> <div>Clients : <em>moins cher, plus direct</em></div></div>
+            <div class="check"><span>✓</span> <div>Plateforme : <em>simple, sans blabla</em></div></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- CATEGORIES -->
+    <section id="categories" class="section">
+      <div class="sectionTitle">
+        <h2>Que cherchez-vous ?</h2>
+        <div class="hint">Choisissez une catégorie — on va droit au but.</div>
+      </div>
+
+      <div class="grid5" role="list">
+        <button class="cat" type="button" data-cat="Site Web" role="listitem">
+          <div class="catTop">
+            <div class="icon">🌐</div>
+            <div style="opacity:.7">›</div>
+          </div>
+          <h3>Site Web</h3>
+          <p>Vitrine, e-commerce, landing.</p>
+        </button>
+
+        <button class="cat" type="button" data-cat="Logo & Design" role="listitem">
+          <div class="catTop">
+            <div class="icon">🎨</div>
+            <div style="opacity:.7">›</div>
+          </div>
+          <h3>Logo & Design</h3>
+          <p>Logo, branding, visuels.</p>
+        </button>
+
+        <button class="cat" type="button" data-cat="Vidéo & Montage" role="listitem">
+          <div class="catTop">
+            <div class="icon">🎥</div>
+            <div style="opacity:.7">›</div>
+          </div>
+          <h3>Vidéo & Montage</h3>
+          <p>Montage, shorts, pub.</p>
+        </button>
+
+        <button class="cat" type="button" data-cat="Rédaction" role="listitem">
+          <div class="catTop">
+            <div class="icon">✍️</div>
+            <div style="opacity:.7">›</div>
+          </div>
+          <h3>Rédaction</h3>
+          <p>Articles, SEO, pages web.</p>
+        </button>
+
+        <button class="cat" type="button" data-cat="Autres services" role="listitem">
+          <div class="catTop">
+            <div class="icon">⚙️</div>
+            <div style="opacity:.7">›</div>
+          </div>
+          <h3>Autres services</h3>
+          <p>Tout le reste, simple.</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="comment" class="section">
+      <div class="sectionTitle">
+        <h2>Comment ça marche</h2>
+        <div class="hint">3 étapes. Pas plus.</div>
+      </div>
+
+      <div class="how">
+        <div class="step">
+          <div class="stepNum">1</div>
+          <h3>Choisissez</h3>
+          <p>Vous cliquez sur une catégorie et trouvez l’indépendant adapté.</p>
+        </div>
+        <div class="step">
+          <div class="stepNum">2</div>
+          <h3>Discutez</h3>
+          <p>Échange direct, besoin clair, délai clair. Sans détour.</p>
+        </div>
+        <div class="step">
+          <div class="stepNum">3</div>
+          <h3>Payez & recevez</h3>
+          <p>Paiement sécurisé. Vous recevez la prestation. Terminé.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section id="pourquoi" class="section">
+      <div class="sectionTitle">
+        <h2>Pourquoi Serviko ?</h2>
+        <div class="hint">La différence : les frais.</div>
+      </div>
+
+      <div class="cards2">
+        <div class="card">
+          <h3>Seulement 2% de commission</h3>
+          <div class="hint">Là où d’autres plateformes prennent souvent 10–20%.</div>
+          <ul>
+            <li>✅ <small>Pas d’abonnement</small></li>
+            <li>✅ <small>Pas de frais cachés</small></li>
+            <li>✅ <small>Transparence totale</small></li>
+          </ul>
+          <a class="btn" href="#top">Revenir aux catégories</a>
+        </div>
+
+        <div id="pro" class="card">
+          <h3>Pour les indépendants</h3>
+          <div class="hint">Travaillez librement. Gardez votre argent.</div>
+          <ul>
+            <li>✅ <small>Publiez vos services gratuitement</small></li>
+            <li>✅ <small>Fixez vos prix</small></li>
+            <li>✅ <small>Vous gardez 98% de vos gains</small></li>
+          </ul>
+          <button class="btn primary" type="button" id="btnBecome">Devenir indépendant sur Serviko</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <div class="sectionTitle">
+        <h2>Contact</h2>
+        <div class="hint">Une question ? Réponse simple.</div>
+      </div>
+
+      <div class="card">
+        <p class="sub" style="margin:0">
+          Écrivez-nous : <strong>contact@serviko.com</strong> (à remplacer)<br/>
+          Ou ajoutez ici un formulaire plus tard.
+        </p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div><strong style="color:var(--text)">Serviko</strong> — Services indépendants, simplement. © <span id="year"></span></div>
+      <div class="links">
+        <a href="#top">Accueil</a>
+        <a href="#comment">Comment ça marche</a>
+        <a href="#pourquoi">2% de frais</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- MODAL (optionnel) -->
+  <div class="modalBackdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHeader">
+        <div>
+          <h3 id="modalTitle">Bienvenue sur Serviko 👋</h3>
+          <p id="modalText">Ici, tu pourras créer ton profil indépendant et proposer tes services.</p>
+        </div>
+        <button class="close" id="btnClose" type="button">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Année
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Catégories (exemple : ouvrir une page / filtrer / afficher une liste)
+    const cats = document.querySelectorAll(".cat");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const btnClose = document.getElementById("btnClose");
+    const btnBecome = document.getElementById("btnBecome");
+
+    function openModal(title, text){
+      modalTitle.textContent = title;
+      modalText.textContent = text;
+      modalBackdrop.style.display = "flex";
+      modalBackdrop.setAttribute("aria-hidden", "false");
+    }
+    function closeModal(){
+      modalBackdrop.style.display = "none";
+      modalBackdrop.setAttribute("aria-hidden", "true");
+    }
+
+    cats.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cat = btn.getAttribute("data-cat");
+        // Ici, tu remplacerais par une navigation réelle :
+        // window.location.href = `/categorie/${slug(cat)}`;
+        openModal(cat, `Exemple : afficher les offres dans la catégorie “${cat}”.`);
+      });
+    });
+
+    btnBecome.addEventListener("click", () => {
+      openModal("Devenir indépendant", "Exemple : rediriger vers la page d'inscription / création de profil.");
+    });
+
+    btnClose.addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (e) => {
+      if(e.target === modalBackdrop) closeModal();
+    });
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeModal();
+    });
+  </script>
+</body>
+</html>
