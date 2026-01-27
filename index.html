@@ -217,6 +217,26 @@
     }
     @media (max-width: 900px){ .cards2{grid-template-columns:1fr} }
 
+    .filterBar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      border:1px dashed rgba(255,255,255,.18);
+      background: rgba(17,24,39,.4);
+      padding:12px 14px;
+      border-radius: 16px;
+      margin-bottom:12px;
+    }
+    .filterBar strong{font-weight:800}
+    .filterBar .hint{margin:0}
+    .clearBtn{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      border-radius: 12px;
+      padding:8px 12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+
     .splitIntro{
       display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;
     }
@@ -777,8 +797,15 @@
         <div class="hint">Des indépendants prêts à répondre aujourd’hui.</div>
       </div>
 
-      <div class="serviceGrid">
-        <article class="serviceCard">
+      <div class="filterBar" aria-live="polite">
+        <strong id="activeCategory">Catégorie sélectionnée : Toutes</strong>
+        <div class="hint" id="serviceCount">3 services affichés</div>
+        <button class="clearBtn" id="clearCategory" type="button" hidden>Réinitialiser</button>
+      </div>
+      <p class="hint" id="noServices" style="display:none">Aucun service disponible pour cette catégorie pour le moment.</p>
+
+      <div class="serviceGrid" id="serviceGrid">
+        <article class="serviceCard" data-service-cat="Web">
           <div class="serviceTop">
             <strong>Landing page efficace</strong>
             <span class="tag">Web</span>
@@ -791,7 +818,7 @@
           <button class="btn" type="button" data-quote="Landing page efficace">Demander un devis</button>
         </article>
 
-        <article class="serviceCard">
+        <article class="serviceCard" data-service-cat="Design">
           <div class="serviceTop">
             <strong>Logo & mini-branding</strong>
             <span class="tag">Design</span>
@@ -804,7 +831,7 @@
           <button class="btn" type="button" data-quote="Logo & mini-branding">Demander un devis</button>
         </article>
 
-        <article class="serviceCard">
+        <article class="serviceCard" data-service-cat="Vidéo">
           <div class="serviceTop">
             <strong>Montage vidéo dynamique</strong>
             <span class="tag">Vidéo</span>
@@ -998,6 +1025,11 @@
     const calcAmount = document.getElementById("calcAmount");
     const calcFee = document.getElementById("calcFee");
     const calcNet = document.getElementById("calcNet");
+    const serviceCards = document.querySelectorAll(".serviceCard");
+    const activeCategory = document.getElementById("activeCategory");
+    const clearCategory = document.getElementById("clearCategory");
+    const serviceCount = document.getElementById("serviceCount");
+    const noServices = document.getElementById("noServices");
     const contactForm = document.getElementById("contactForm");
 
     function openModal(title, text){
@@ -1011,13 +1043,45 @@
       modalBackdrop.setAttribute("aria-hidden", "true");
     }
 
+    function updateServiceCount(visible){
+      serviceCount.textContent = `${visible} service${visible > 1 ? "s" : ""} affiché${visible > 1 ? "s" : ""}`;
+    }
+
+    function filterServices(category){
+      let visible = 0;
+      serviceCards.forEach(card => {
+        const cardCat = card.getAttribute("data-service-cat");
+        const match = !category || cardCat === category;
+        card.style.display = match ? "" : "none";
+        if (match) visible += 1;
+      });
+      updateServiceCount(visible);
+      noServices.style.display = visible === 0 ? "block" : "none";
+    }
+
+    const catMap = {
+      "Site Web": "Web",
+      "Logo & Design": "Design",
+      "Vidéo & Montage": "Vidéo",
+      "Rédaction": "Rédaction",
+      "Autres services": "Autres"
+    };
+
     cats.forEach(btn => {
       btn.addEventListener("click", () => {
         const cat = btn.getAttribute("data-cat");
-        // Ici, tu remplacerais par une navigation réelle :
-        // window.location.href = `/categorie/${slug(cat)}`;
-        openModal(cat, `Exemple : afficher les offres dans la catégorie “${cat}”.`);
+        const mapped = catMap[cat] || cat;
+        activeCategory.textContent = `Catégorie sélectionnée : ${cat}`;
+        clearCategory.hidden = false;
+        filterServices(mapped);
+        document.getElementById("services").scrollIntoView({ behavior: "smooth" });
       });
+    });
+
+    clearCategory.addEventListener("click", () => {
+      activeCategory.textContent = "Catégorie sélectionnée : Toutes";
+      clearCategory.hidden = true;
+      filterServices("");
     });
 
     btnBecome.addEventListener("click", () => {
@@ -1091,6 +1155,10 @@
     if (calcAmount){
       updateCalc();
       calcAmount.addEventListener("input", updateCalc);
+    }
+
+    if (serviceCards.length){
+      filterServices("");
     }
 
     if (contactForm){
