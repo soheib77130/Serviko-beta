@@ -89,8 +89,9 @@
             <span class="pill">Relancer un indépendant</span>
             <span class="pill">Télécharger une facture</span>
           </div>
-          <div style="margin-top:12px">
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
             <button class="btn" type="button" id="supportBtn">Contacter le support</button>
+            <button class="btn" type="button" id="logoutBtn">Se déconnecter</button>
           </div>
         </div>
       </div>
@@ -99,9 +100,27 @@
 
   <script>
     const supportBtn = document.getElementById("supportBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const header = document.querySelector("h1");
+    const saved = localStorage.getItem("servikoUser");
+
+    if (saved && header){
+      const user = JSON.parse(saved);
+      const name = [user.firstname, user.lastname].filter(Boolean).join(" ");
+      header.textContent = name ? `Tableau de bord de ${name}` : "Tableau de bord client";
+    }
+
     if (supportBtn){
       supportBtn.addEventListener("click", () => {
         alert("Support contacté (démo). Nous revenons vers vous rapidement.");
+      });
+    }
+
+    if (logoutBtn){
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("servikoUser");
+        alert("Vous êtes déconnecté.");
+        window.location.href = "index.html";
       });
     }
   </script>

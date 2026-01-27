@@ -98,8 +98,22 @@
     if (loginForm){
       loginForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        alert("Connexion réussie (démo). Bienvenue sur votre tableau de bord.");
-        loginForm.reset();
+        const formData = new FormData(loginForm);
+        const email = formData.get("email").toString().trim();
+        const password = formData.get("password").toString();
+        const saved = localStorage.getItem("servikoUser");
+        if (!saved){
+          alert("Aucun compte enregistré. Merci de créer un compte.");
+          window.location.href = "signup.html";
+          return;
+        }
+        const user = JSON.parse(saved);
+        if (user.email === email && user.password === password){
+          alert(`Bienvenue ${user.firstname || \"\"} ! Connexion réussie.`);
+          window.location.href = "dashboard.html";
+          return;
+        }
+        alert("Email ou mot de passe incorrect.");
       });
     }
   </script>

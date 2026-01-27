@@ -70,6 +70,14 @@
       border-color: transparent; color:#061019;
     }
     .actions{display:flex; gap:10px; flex-wrap:wrap}
+    .progressWrap{display:grid; gap:6px}
+    .progressTrack{
+      height:10px; border-radius:999px; background: rgba(255,255,255,.08); overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .progressFill{height:100%; width:0%; background: linear-gradient(135deg, var(--accent2), var(--accent)); transition: width .2s ease}
+    .progressText{color:var(--muted); font-weight:650; font-size:13px}
+    .status{font-size:13px; color:var(--muted); font-weight:650}
   </style>
 </head>
 <body>
@@ -94,7 +102,16 @@
           <input type="email" name="email" placeholder="Email" required />
           <input type="tel" name="phone" placeholder="Téléphone" />
         </div>
+        <div class="formRow">
+          <input type="password" name="password" placeholder="Mot de passe" required />
+          <input type="password" name="confirm" placeholder="Confirmer le mot de passe" required />
+        </div>
         <input type="text" name="company" placeholder="Nom de l'entreprise (optionnel)" />
+        <div class="progressWrap">
+          <div class="progressTrack"><div class="progressFill" id="signupProgress"></div></div>
+          <div class="progressText" id="signupProgressText">Complétez le formulaire pour activer votre compte.</div>
+        </div>
+        <div class="status" id="signupStatus">Mot de passe : en attente.</div>
         <div class="actions">
           <button class="btn primary" type="submit">Créer mon compte</button>
           <a class="btn" href="login.html">Déjà inscrit ? Se connecter</a>
@@ -105,11 +122,58 @@
 
   <script>
     const signupForm = document.getElementById("signupForm");
+    const signupProgress = document.getElementById("signupProgress");
+    const signupProgressText = document.getElementById("signupProgressText");
+    const signupStatus = document.getElementById("signupStatus");
+
+    function computeProgress(fields){
+      const total = fields.length;
+      const filled = fields.filter((field) => field.value.trim().length > 0).length;
+      return Math.round((filled / total) * 100);
+    }
+
+    function passwordStrength(password){
+      if (password.length >= 12 && /[A-Z]/.test(password) && /\\d/.test(password)) return "Fort";
+      if (password.length >= 8) return "Correct";
+      return "Faible";
+    }
+
+    function updateSignupUI(){
+      if (!signupForm) return;
+      const fields = Array.from(signupForm.querySelectorAll("input"));
+      const progress = computeProgress(fields);
+      signupProgress.style.width = `${progress}%`;
+      signupProgressText.textContent = `Progression : ${progress}%`;
+
+      const password = signupForm.querySelector("[name='password']").value;
+      const confirm = signupForm.querySelector("[name='confirm']").value;
+      const strength = passwordStrength(password);
+      const match = password && confirm && password === confirm;
+      signupStatus.textContent = `Mot de passe : ${strength}${match ? " • correspond" : ""}`;
+    }
+
     if (signupForm){
+      signupForm.addEventListener("input", updateSignupUI);
+      updateSignupUI();
       signupForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        alert("Compte créé (démo). Vous allez recevoir un email de confirmation.");
-        signupForm.reset();
+        const formData = new FormData(signupForm);
+        const password = formData.get("password");
+        const confirm = formData.get("confirm");
+        if (password !== confirm){
+          alert("Les mots de passe ne correspondent pas.");
+          return;
+        }
+        const user = {
+          firstname: formData.get("firstname").toString().trim(),
+          lastname: formData.get("lastname").toString().trim(),
+          email: formData.get("email").toString().trim(),
+          company: formData.get("company").toString().trim(),
+          password: password.toString()
+        };
+        localStorage.setItem("servikoUser", JSON.stringify(user));
+        alert("Compte créé ! Vous allez être redirigé vers votre tableau de bord.");
+        window.location.href = "dashboard.html";
       });
     }
   </script>
