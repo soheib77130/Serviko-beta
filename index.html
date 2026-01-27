@@ -217,6 +217,31 @@
     }
     @media (max-width: 900px){ .cards2{grid-template-columns:1fr} }
 
+    .splitIntro{
+      display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;
+    }
+    @media (max-width: 900px){ .splitIntro{grid-template-columns:1fr} }
+    .splitCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.52);
+      border-radius: var(--radius);
+      padding:18px;
+      display:grid; gap:12px;
+    }
+    .splitHeader{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .splitHeader strong{font-size:18px}
+    .chip{
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.22);
+      color:#c8f5d7;
+      font-weight:800;
+      font-size:12px;
+    }
+
     .card{
       border:1px solid rgba(255,255,255,.10);
       background: rgba(17,24,39,.50);
@@ -280,6 +305,70 @@
       color:var(--muted); font-weight:700;
     }
     .priceRow strong{color:var(--text)}
+
+    .flow{
+      display:grid; gap:12px;
+    }
+    .flowCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.48);
+      border-radius: 18px;
+      padding:16px;
+      display:grid; gap:10px;
+    }
+    .flowSteps{
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;
+    }
+    @media (max-width: 980px){ .flowSteps{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .flowSteps{grid-template-columns: 1fr} }
+    .flowStep{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(10,14,22,.30);
+      border-radius: 16px;
+      padding:14px;
+      display:grid; gap:8px;
+    }
+
+    .qcm{
+      display:grid; gap:12px;
+    }
+    .qcmRow{
+      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
+    }
+    @media (max-width: 640px){ .qcmRow{grid-template-columns: 1fr} }
+    .qcmLabel{color:var(--muted); font-weight:700; font-size:13px}
+    .qcmOptions{display:flex; gap:8px; flex-wrap:wrap}
+    .qcmOptions button{
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(17,24,39,.55);
+      color:var(--text);
+      font-weight:700;
+      cursor:pointer;
+    }
+    .qcmOptions button.active{
+      border-color: rgba(96,165,250,.35);
+      background: rgba(96,165,250,.18);
+    }
+
+    .matchCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.55);
+      border-radius: 18px;
+      padding:16px;
+      display:grid; gap:10px;
+    }
+    .matchHeader{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .matchMeta{color:var(--muted); font-weight:700; font-size:13px}
+    .matchSkills{display:flex; gap:8px; flex-wrap:wrap}
+    .skill{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight:700; font-size:12px;
+    }
 
     .calc{
       display:grid; gap:10px;
@@ -507,6 +596,180 @@
       </div>
     </section>
 
+    <!-- DOUBLE ESPACE -->
+    <section id="espace" class="section">
+      <div class="sectionTitle">
+        <h2>Deux espaces, une seule plateforme</h2>
+        <div class="hint">Clients et indépendants, chacun son parcours.</div>
+      </div>
+
+      <div class="splitIntro">
+        <article class="splitCard">
+          <div class="splitHeader">
+            <strong>Espace client</strong>
+            <span class="chip">Je cherche une prestation</span>
+          </div>
+          <p class="sub" style="margin:0">Choisissez votre besoin, répondez à un mini QCM et Serviko propose l’indépendant le plus adapté.</p>
+          <ul>
+            <li>✅ <small>Questionnaire rapide</small></li>
+            <li>✅ <small>Proposition de prix instantanée</small></li>
+            <li>✅ <small>Comparatif d’indépendants</small></li>
+          </ul>
+          <button class="btn primary" type="button" data-journey="client">Accéder à l’espace client</button>
+        </article>
+
+        <article class="splitCard">
+          <div class="splitHeader">
+            <strong>Espace indépendant</strong>
+            <span class="chip">Je propose mes services</span>
+          </div>
+          <p class="sub" style="margin:0">Mettez en avant vos compétences, recevez des demandes filtrées et validez le prix proposé.</p>
+          <ul>
+            <li>✅ <small>Profil + avis + points forts</small></li>
+            <li>✅ <small>Projets compatibles seulement</small></li>
+            <li>✅ <small>Prix négociable en direct</small></li>
+          </ul>
+          <button class="btn" type="button" data-journey="indep">Accéder à l’espace indépendant</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- FLOW -->
+    <section id="parcours" class="section">
+      <div class="sectionTitle">
+        <h2>Parcours simple : du besoin à la mise en relation</h2>
+        <div class="hint">On garde l’ADN Serviko : rapide, clair, sans friction.</div>
+      </div>
+
+      <div class="flow">
+        <div class="flowSteps">
+          <div class="flowStep">
+            <strong>1. Choix du service</strong>
+            <p class="hint">Site, logo, vidéo… vous sélectionnez dès l’accueil.</p>
+          </div>
+          <div class="flowStep">
+            <strong>2. Mini QCM</strong>
+            <p class="hint">3–4 questions pour clarifier besoin, budget, délai.</p>
+          </div>
+          <div class="flowStep">
+            <strong>3. Match intelligent</strong>
+            <p class="hint">L’algorithme propose les profils les plus adaptés.</p>
+          </div>
+          <div class="flowStep">
+            <strong>4. Prix négocié</strong>
+            <p class="hint">Serviko propose un prix, les deux côtés ajustent.</p>
+          </div>
+        </div>
+
+        <div class="flowCard">
+          <strong>Exemple de QCM rapide</strong>
+          <div class="qcm">
+            <div class="qcmRow">
+              <div>
+                <div class="qcmLabel">Type de prestation</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn active">Site vitrine</button>
+                  <button type="button" class="qcmBtn">E-commerce</button>
+                  <button type="button" class="qcmBtn">Landing page</button>
+                </div>
+              </div>
+              <div>
+                <div class="qcmLabel">Délai souhaité</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn">7 jours</button>
+                  <button type="button" class="qcmBtn active">14 jours</button>
+                  <button type="button" class="qcmBtn">1 mois+</button>
+                </div>
+              </div>
+            </div>
+            <div class="qcmRow">
+              <div>
+                <div class="qcmLabel">Budget estimé</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn">€150-300</button>
+                  <button type="button" class="qcmBtn active">€300-600</button>
+                  <button type="button" class="qcmBtn">€600+</button>
+                </div>
+              </div>
+              <div>
+                <div class="qcmLabel">Style recherché</div>
+                <div class="qcmOptions">
+                  <button type="button" class="qcmBtn active">Minimaliste</button>
+                  <button type="button" class="qcmBtn">Luxe</button>
+                  <button type="button" class="qcmBtn">Impact visuel</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn primary" type="button" data-journey="qcm">Valider mon QCM</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MATCH -->
+    <section id="match" class="section">
+      <div class="sectionTitle">
+        <h2>Mise en relation intelligente</h2>
+        <div class="hint">L’algorithme met en avant le meilleur profil pour votre besoin.</div>
+      </div>
+
+      <div class="serviceGrid">
+        <article class="matchCard">
+          <div class="matchHeader">
+            <strong>Naël — UX/UI & Webflow</strong>
+            <span class="tag">98% avis positifs</span>
+          </div>
+          <div class="matchMeta">Points forts : rapidité, design minimaliste, conversion.</div>
+          <div class="matchSkills">
+            <span class="skill">Webflow</span>
+            <span class="skill">UI/UX</span>
+            <span class="skill">SEO</span>
+          </div>
+          <div class="priceRow">
+            <span>Prix proposé par Serviko</span>
+            <strong>€320</strong>
+          </div>
+          <button class="btn" type="button" data-journey="match">Discuter le prix</button>
+        </article>
+
+        <article class="matchCard">
+          <div class="matchHeader">
+            <strong>Maya — Branding & Logo</strong>
+            <span class="tag">4.9/5</span>
+          </div>
+          <div class="matchMeta">Points forts : identité visuelle, sens du détail, livrables rapides.</div>
+          <div class="matchSkills">
+            <span class="skill">Logo</span>
+            <span class="skill">Charte</span>
+            <span class="skill">Illustration</span>
+          </div>
+          <div class="priceRow">
+            <span>Prix proposé par Serviko</span>
+            <strong>€210</strong>
+          </div>
+          <button class="btn" type="button" data-journey="match">Discuter le prix</button>
+        </article>
+
+        <article class="matchCard">
+          <div class="matchHeader">
+            <strong>Yanis — Vidéo & Motion</strong>
+            <span class="tag">Spécialiste réseaux sociaux</span>
+          </div>
+          <div class="matchMeta">Points forts : montage dynamique, storytelling court, livraison express.</div>
+          <div class="matchSkills">
+            <span class="skill">After Effects</span>
+            <span class="skill">Shorts</span>
+            <span class="skill">Sound design</span>
+          </div>
+          <div class="priceRow">
+            <span>Prix proposé par Serviko</span>
+            <strong>€190</strong>
+          </div>
+          <button class="btn" type="button" data-journey="match">Discuter le prix</button>
+        </article>
+      </div>
+    </section>
+
     <!-- SERVICES -->
     <section id="services" class="section">
       <div class="sectionTitle">
@@ -729,6 +992,8 @@
     const btnClose = document.getElementById("btnClose");
     const btnBecome = document.getElementById("btnBecome");
     const quoteButtons = document.querySelectorAll("[data-quote]");
+    const journeyButtons = document.querySelectorAll("[data-journey]");
+    const qcmButtons = document.querySelectorAll(".qcmBtn");
     const faqButtons = document.querySelectorAll(".faqQuestion");
     const calcAmount = document.getElementById("calcAmount");
     const calcFee = document.getElementById("calcFee");
@@ -763,6 +1028,28 @@
       btn.addEventListener("click", () => {
         const service = btn.getAttribute("data-quote");
         openModal("Demande de devis", `Demande rapide pour : “${service}”.`);
+      });
+    });
+
+    journeyButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const journey = btn.getAttribute("data-journey");
+        const messages = {
+          client: "Accès client : sélectionnez une catégorie puis répondez au QCM pour recevoir un match.",
+          indep: "Accès indépendant : créez votre profil, ajoutez vos compétences et recevez des demandes filtrées.",
+          qcm: "Votre QCM est enregistré. L’algorithme prépare la sélection d’indépendants.",
+          match: "Discussion ouverte : le prix proposé peut être ajusté par les deux parties."
+        };
+        openModal("Parcours Serviko", messages[journey] || "Parcours Serviko en préparation.");
+      });
+    });
+
+    qcmButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const group = btn.closest(".qcmOptions");
+        if (!group) return;
+        group.querySelectorAll(".qcmBtn").forEach(item => item.classList.remove("active"));
+        btn.classList.add("active");
       });
     });
 
