@@ -217,6 +217,33 @@
     }
     @media (max-width: 900px){ .cards2{grid-template-columns:1fr} }
 
+    .clientGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 980px){ .clientGrid{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .clientGrid{grid-template-columns: 1fr} }
+
+    .clientCard{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.52);
+      border-radius: var(--radius);
+      padding:18px;
+      display:grid; gap:10px;
+    }
+    .clientCard h3{margin:0; font-size:18px}
+    .clientCard p{margin:0; color:var(--muted); font-weight:650}
+
+    .note{
+      border:1px dashed rgba(96,165,250,.4);
+      background: rgba(96,165,250,.08);
+      border-radius: 16px;
+      padding:14px 16px;
+      color:#cfe6ff;
+      font-weight:700;
+    }
+
     .filterBar{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
       border:1px dashed rgba(255,255,255,.18);
@@ -514,6 +541,7 @@
       <nav class="navlinks" aria-label="Navigation">
         <a href="#comment">Comment ça marche</a>
         <a href="#pourquoi">Pourquoi Serviko</a>
+        <a href="#client">Espace client</a>
         <a href="#contact">Contact</a>
       </nav>
     </header>
@@ -904,6 +932,53 @@
       </div>
     </section>
 
+    <!-- CLIENT SPACE -->
+    <section id="client" class="section">
+      <div class="sectionTitle">
+        <h2>Page client — espace inscription & suivi</h2>
+        <div class="hint">Une page dédiée pour démarrer rapidement côté client.</div>
+      </div>
+
+      <div class="note">
+        ✅ Ici tu peux brancher tes formulaires d’inscription et de connexion. Les boutons ouvrent une modale de démo.
+      </div>
+
+      <div class="clientGrid" style="margin-top:12px">
+        <article class="clientCard">
+          <h3>Créer mon compte client</h3>
+          <p>Inscription en 2 minutes : email, téléphone, activité.</p>
+          <ul>
+            <li>✅ <small>Profil client prêt</small></li>
+            <li>✅ <small>Accès au QCM</small></li>
+            <li>✅ <small>Suivi des demandes</small></li>
+          </ul>
+          <button class="btn primary" type="button" data-journey="signup-client">S’inscrire</button>
+        </article>
+
+        <article class="clientCard">
+          <h3>Me connecter</h3>
+          <p>Retrouver mes échanges, devis et prestations en cours.</p>
+          <ul>
+            <li>✅ <small>Messagerie centralisée</small></li>
+            <li>✅ <small>Historique des services</small></li>
+            <li>✅ <small>Factures et paiements</small></li>
+          </ul>
+          <button class="btn" type="button" data-journey="login-client">Connexion</button>
+        </article>
+
+        <article class="clientCard">
+          <h3>Tableau de bord client</h3>
+          <p>Voir l’avancement des prestations et valider les livrables.</p>
+          <ul>
+            <li>✅ <small>Statut en temps réel</small></li>
+            <li>✅ <small>Validation livraison</small></li>
+            <li>✅ <small>Support prioritaire</small></li>
+          </ul>
+          <button class="btn" type="button" data-journey="dashboard-client">Voir mon espace</button>
+        </article>
+      </div>
+    </section>
+
     <!-- CALCULATOR -->
     <section id="simulateur" class="section">
       <div class="sectionTitle">
@@ -1102,7 +1177,10 @@
           client: "Accès client : sélectionnez une catégorie puis répondez au QCM pour recevoir un match.",
           indep: "Accès indépendant : créez votre profil, ajoutez vos compétences et recevez des demandes filtrées.",
           qcm: "Votre QCM est enregistré. L’algorithme prépare la sélection d’indépendants.",
-          match: "Discussion ouverte : le prix proposé peut être ajusté par les deux parties."
+          match: "Discussion ouverte : le prix proposé peut être ajusté par les deux parties.",
+          "signup-client": "Inscription client : créez votre compte en 2 minutes pour lancer votre premier projet.",
+          "login-client": "Connexion client : retrouvez vos demandes, devis et messages.",
+          "dashboard-client": "Tableau de bord client : suivi des prestations, validation et factures."
         };
         openModal("Parcours Serviko", messages[journey] || "Parcours Serviko en préparation.");
       });
