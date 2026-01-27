@@ -922,6 +922,11 @@
     const calcAmount = document.getElementById("calcAmount");
     const calcFee = document.getElementById("calcFee");
     const calcNet = document.getElementById("calcNet");
+    const serviceCards = document.querySelectorAll(".serviceCard");
+    const activeCategory = document.getElementById("activeCategory");
+    const clearCategory = document.getElementById("clearCategory");
+    const serviceCount = document.getElementById("serviceCount");
+    const noServices = document.getElementById("noServices");
     const contactForm = document.getElementById("contactForm");
 
     function openModal(title, text){
@@ -989,6 +994,10 @@
     if (calcAmount){
       updateCalc();
       calcAmount.addEventListener("input", updateCalc);
+    }
+
+    if (serviceCards.length){
+      filterServices("");
     }
 
     if (contactForm){
