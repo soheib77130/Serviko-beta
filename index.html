@@ -475,6 +475,7 @@
         <a href="#comment">Comment ça marche</a>
         <a href="#pourquoi">Pourquoi Serviko</a>
         <a href="#client">Espace client</a>
+        <a href="#independant">Espace indépendant</a>
         <a href="#contact">Contact</a>
       </nav>
     </header>
@@ -711,46 +712,93 @@
     <!-- CLIENT SPACE -->
     <section id="client" class="section">
       <div class="sectionTitle">
-        <h2>Page client — espace inscription & suivi</h2>
-        <div class="hint">Une page dédiée pour démarrer rapidement côté client.</div>
+        <h2>Espace client</h2>
+        <div class="hint">Compte client séparé : demandes, suivi et validations.</div>
       </div>
 
       <div class="note">
-        ✅ Tu as maintenant des pages dédiées pour l’inscription, la connexion et le tableau de bord client.
+        ✅ Un compte client pour commander, un compte indépendant pour vendre. Deux tableaux de bord distincts.
       </div>
 
       <div class="clientGrid" style="margin-top:12px">
         <article class="clientCard">
-          <h3>Créer mon compte client</h3>
-          <p>Inscription en 2 minutes : email, téléphone, activité.</p>
+          <h3>Créer un compte client</h3>
+          <p>Inscription rapide pour déposer une demande.</p>
           <ul>
-            <li>✅ <small>Profil client prêt</small></li>
-            <li>✅ <small>Accès au QCM</small></li>
-            <li>✅ <small>Suivi des demandes</small></li>
+            <li>✅ <small>Brief & budget</small></li>
+            <li>✅ <small>Suivi des prestations</small></li>
+            <li>✅ <small>Validation livraison</small></li>
           </ul>
           <a class="btn primary" href="signup.html">S’inscrire</a>
         </article>
 
         <article class="clientCard">
-          <h3>Me connecter</h3>
-          <p>Retrouver mes échanges, devis et prestations en cours.</p>
+          <h3>Connexion client</h3>
+          <p>Retrouvez vos échanges et devis.</p>
           <ul>
             <li>✅ <small>Messagerie centralisée</small></li>
             <li>✅ <small>Historique des services</small></li>
-            <li>✅ <small>Factures et paiements</small></li>
+            <li>✅ <small>Factures</small></li>
           </ul>
           <a class="btn" href="login.html">Connexion</a>
         </article>
 
         <article class="clientCard">
           <h3>Tableau de bord client</h3>
-          <p>Voir l’avancement des prestations et valider les livrables.</p>
+          <p>Suivez vos demandes en temps réel.</p>
           <ul>
-            <li>✅ <small>Statut en temps réel</small></li>
-            <li>✅ <small>Validation livraison</small></li>
-            <li>✅ <small>Support prioritaire</small></li>
+            <li>✅ <small>Statuts projets</small></li>
+            <li>✅ <small>Validation livrables</small></li>
+            <li>✅ <small>Support client</small></li>
           </ul>
           <a class="btn" href="dashboard.html">Voir mon espace</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- INDEPENDANT SPACE -->
+    <section id="independant" class="section">
+      <div class="sectionTitle">
+        <h2>Espace indépendant</h2>
+        <div class="hint">Compte indépendant séparé : profil, revenus et missions.</div>
+      </div>
+
+      <div class="note">
+        ✅ Un espace dédié aux indépendants pour gérer le profil, les prestations et les revenus.
+      </div>
+
+      <div class="clientGrid" style="margin-top:12px">
+        <article class="clientCard">
+          <h3>Créer un compte indépendant</h3>
+          <p>Inscription complète pour publier vos services.</p>
+          <ul>
+            <li>✅ <small>Profil & compétences</small></li>
+            <li>✅ <small>Tarifs & disponibilités</small></li>
+            <li>✅ <small>Identité vérifiée</small></li>
+          </ul>
+          <a class="btn primary" href="indep-signup.html">S’inscrire</a>
+        </article>
+
+        <article class="clientCard">
+          <h3>Connexion indépendant</h3>
+          <p>Accédez à vos missions et revenus.</p>
+          <ul>
+            <li>✅ <small>Demandes filtrées</small></li>
+            <li>✅ <small>Suivi des revenus</small></li>
+            <li>✅ <small>Avis clients</small></li>
+          </ul>
+          <a class="btn" href="indep-login.html">Connexion</a>
+        </article>
+
+        <article class="clientCard">
+          <h3>Tableau de bord indépendant</h3>
+          <p>Gérez vos prestations et votre chiffre d’affaires.</p>
+          <ul>
+            <li>✅ <small>Revenus mensuels</small></li>
+            <li>✅ <small>Demandes actives</small></li>
+            <li>✅ <small>Profil public</small></li>
+          </ul>
+          <a class="btn" href="indep-dashboard.html">Voir mon espace</a>
         </article>
       </div>
     </section>
@@ -870,7 +918,6 @@
     const btnClose = document.getElementById("btnClose");
     const btnBecome = document.getElementById("btnBecome");
     const journeyButtons = document.querySelectorAll("[data-journey]");
-    const qcmButtons = document.querySelectorAll(".qcmBtn");
     const faqButtons = document.querySelectorAll(".faqQuestion");
     const calcAmount = document.getElementById("calcAmount");
     const calcFee = document.getElementById("calcFee");
@@ -901,20 +948,11 @@
       btn.addEventListener("click", () => {
         const journey = btn.getAttribute("data-journey");
         const messages = {
-          client: "Accès client : sélectionnez une catégorie puis répondez au QCM pour recevoir un match.",
-          indep: "Accès indépendant : créez votre profil, ajoutez vos compétences et recevez des demandes filtrées.",
-          qcm: "Votre demande est enregistrée. L’algorithme prépare la sélection d’indépendants."
+          client: "Accès client : déposez votre demande et suivez les livrables en temps réel.",
+          indep: "Accès indépendant : complétez votre profil et recevez des missions adaptées.",
+          qcm: "Votre besoin est enregistré. L’algorithme recommande le meilleur indépendant."
         };
         openModal("Parcours Serviko", messages[journey] || "Parcours Serviko en préparation.");
-      });
-    });
-
-    qcmButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const group = btn.closest(".qcmOptions");
-        if (!group) return;
-        group.querySelectorAll(".qcmBtn").forEach(item => item.classList.remove("active"));
-        btn.classList.add("active");
       });
     });
 
