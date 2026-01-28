@@ -66,7 +66,10 @@
         <div class="logo">S</div>
         <div>Serviko</div>
       </a>
-      <a class="btn" href="index.html#independant">Retour à l'espace indépendant</a>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <a class="btn" href="index.html#independant">Retour à l'espace indépendant</a>
+        <button class="btn" type="button" data-logout>Se déconnecter</button>
+      </div>
     </header>
 
     <section class="panel">
@@ -149,7 +152,7 @@
         </div>
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
           <button class="btn" type="button" id="supportBtn">Contacter le support</button>
-          <button class="btn" type="button" id="logoutBtn">Se déconnecter</button>
+          <button class="btn" type="button" data-logout>Se déconnecter</button>
         </div>
       </div>
     </section>
@@ -160,7 +163,7 @@
     const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_yxLCOU94zhGck9yvGYch5Q_ePCPd9Yq";
     const supportBtn = document.getElementById("supportBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutButtons = Array.from(document.querySelectorAll("[data-logout]"));
     const headline = document.getElementById("indepHeadline");
     const revenue = document.getElementById("indepRevenue");
     const rate = document.getElementById("indepRate");
@@ -245,13 +248,15 @@
       });
     }
 
-    if (logoutBtn){
-      logoutBtn.addEventListener("click", async () => {
-        if (supabaseClient){
-          await supabaseClient.auth.signOut();
-        }
-        alert("Vous êtes déconnecté.");
-        window.location.href = "index.html";
+    if (logoutButtons.length){
+      logoutButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          if (supabaseClient){
+            await supabaseClient.auth.signOut();
+          }
+          alert("Vous êtes déconnecté.");
+          window.location.href = "index.html";
+        });
       });
     }
 
