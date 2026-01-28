@@ -225,14 +225,29 @@
       });
     }
 
+    async function handleLogout(){
+      try {
+        if (supabaseClient){
+          await supabaseClient.auth.signOut();
+        }
+      } catch (error){
+        console.warn("Erreur de déconnexion", error);
+      } finally {
+        Object.keys(window.localStorage || {}).forEach((key) => {
+          if (key.includes("sb-") && key.includes("-auth-token")){
+            window.localStorage.removeItem(key);
+          }
+        });
+        alert("Vous êtes déconnecté.");
+        window.location.href = "index.html";
+      }
+    }
+
     if (logoutButtons.length){
       logoutButtons.forEach((button) => {
-        button.addEventListener("click", async () => {
-          if (supabaseClient){
-            await supabaseClient.auth.signOut();
-          }
-          alert("Vous êtes déconnecté.");
-          window.location.href = "index.html";
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+          handleLogout();
         });
       });
     }
