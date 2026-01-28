@@ -87,10 +87,8 @@
         </div>
         <div class="card">
           <h3>Demandes actives</h3>
-          <ul class="list">
-            <li><strong>Landing page</strong> — en négociation</li>
-            <li><strong>Branding</strong> — devis envoyé</li>
-            <li><strong>Vidéo promo</strong> — en attente de brief</li>
+          <ul class="list" id="indepRequests">
+            <li>Chargement des missions...</li>
           </ul>
         </div>
       </div>
@@ -122,6 +120,7 @@
     const city = document.getElementById("indepCity");
     const exp = document.getElementById("indepExperience");
     const skills = document.getElementById("indepSkills");
+    const indepRequests = document.getElementById("indepRequests");
     const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function hydrateProfile(){
@@ -162,6 +161,25 @@
         const base = Number(data?.daily_rate || 0);
         const estimate = base ? Math.round(base * 8.5) : 0;
         revenue.textContent = `€${estimate}`;
+      }
+      if (indepRequests){
+        const { data: requests, error } = await supabaseClient
+          .from("requests")
+          .select("title, status, created_at")
+          .eq("assigned_indep_user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(5);
+        if (error){
+          indepRequests.innerHTML = "<li>Impossible de charger les missions.</li>";
+          return;
+        }
+        if (!requests || requests.length === 0){
+          indepRequests.innerHTML = "<li>Aucune mission assignée pour le moment.</li>";
+          return;
+        }
+        indepRequests.innerHTML = requests.map((item) => (
+          `<li><strong>${item.title}</strong> — ${item.status || "nouveau"}</li>`
+        )).join(\"\\n\");
       }
     }
 

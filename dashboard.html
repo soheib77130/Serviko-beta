@@ -76,10 +76,8 @@
       <div class="cards2">
         <div class="card">
           <h3>Demandes actives</h3>
-          <ul class="list">
-            <li><strong>Site vitrine</strong> — devis en attente</li>
-            <li><strong>Logo</strong> — en cours (livraison J+3)</li>
-            <li><strong>Montage vidéo</strong> — messages non lus (2)</li>
+          <ul class="list" id="clientRequests">
+            <li>Chargement des demandes...</li>
           </ul>
         </div>
         <div class="card">
@@ -105,6 +103,7 @@
     const supportBtn = document.getElementById("supportBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const header = document.querySelector("h1");
+    const clientRequests = document.getElementById("clientRequests");
     const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function hydrateProfile(){
@@ -127,6 +126,25 @@
       const name = [data?.firstname, data?.lastname].filter(Boolean).join(" ");
       if (header){
         header.textContent = name ? `Tableau de bord de ${name}` : "Tableau de bord client";
+      }
+      if (clientRequests){
+        const { data: requests, error } = await supabaseClient
+          .from("requests")
+          .select("title, status, created_at")
+          .eq("client_user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(5);
+        if (error){
+          clientRequests.innerHTML = "<li>Impossible de charger les demandes.</li>";
+          return;
+        }
+        if (!requests || requests.length === 0){
+          clientRequests.innerHTML = "<li>Aucune demande en cours.</li>";
+          return;
+        }
+        clientRequests.innerHTML = requests.map((item) => (
+          `<li><strong>${item.title}</strong> — ${item.status || "nouveau"}</li>`
+        )).join(\"\\n\");
       }
     }
 
