@@ -179,10 +179,12 @@
           email: formData.get("email").toString().trim(),
           company: formData.get("company").toString().trim()
         };
+        const redirectTo = new URL("confirmed.html", window.location.href).toString();
         supabaseClient.auth.signUp({
           email: payload.email,
           password: password.toString(),
           options: {
+            emailRedirectTo: redirectTo,
             data: {
               role: "client",
               firstname: payload.firstname,

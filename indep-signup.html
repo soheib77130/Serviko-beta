@@ -203,10 +203,12 @@
           skills: formData.get("skills").toString().trim(),
           password: password.toString()
         };
+        const redirectTo = new URL("confirmed.html", window.location.href).toString();
         supabaseClient.auth.signUp({
           email: user.email,
           password: user.password,
           options: {
+            emailRedirectTo: redirectTo,
             data: {
               role: "independant",
               firstname: user.firstname,
