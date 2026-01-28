@@ -88,6 +88,7 @@
             <span class="pill">Télécharger une facture</span>
           </div>
           <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+            <a class="btn" href="request.html">Déposer une demande</a>
             <button class="btn" type="button" id="supportBtn">Contacter le support</button>
             <button class="btn" type="button" id="logoutBtn">Se déconnecter</button>
           </div>
@@ -151,11 +152,18 @@
     const messageInput = document.getElementById("messageInput");
     const sendMessage = document.getElementById("sendMessage");
     let currentRequest = null;
-    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    });
 
     async function hydrateProfile(){
       if (!supabaseClient) return;
-      const { data: { user } } = await supabaseClient.auth.getUser();
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const user = session?.user;
       if (!user){
         window.location.href = "login.html";
         return;
@@ -315,7 +323,8 @@
       sendMessage.addEventListener("click", async () => {
         if (!currentRequest || !supabaseClient || !messageInput?.value) return;
         const channel = currentRequest.status === "confirme" ? "fil" : "instant";
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const user = session?.user;
         if (!user) return;
         const { error } = await supabaseClient
           .from("request_messages")

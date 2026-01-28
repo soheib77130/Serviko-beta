@@ -197,7 +197,13 @@
   <script>
     const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_yxLCOU94zhGck9yvGYch5Q_ePCPd9Yq";
-    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    });
     const requestForm = document.getElementById("requestForm");
     const requestStatus = document.getElementById("requestStatus");
     const steps = Array.from(document.querySelectorAll(".step"));
@@ -287,8 +293,8 @@
 
     async function hydrateStatus(){
       if (!supabaseClient || !requestStatus) return;
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user){
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session?.user){
         requestStatus.textContent = "Connexion requise";
         return;
       }
@@ -337,10 +343,11 @@
           alert("Configurez Supabase pour activer l'envoi.");
           return;
         }
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const user = session?.user;
         if (!user){
-          alert("Merci de vous connecter avant d'envoyer une demande.");
-          window.location.href = "login.html";
+          alert("Merci de créer un compte avant d'envoyer une demande.");
+          window.location.href = "signup.html";
           return;
         }
         const role = user.user_metadata?.role;

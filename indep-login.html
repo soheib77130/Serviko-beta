@@ -98,7 +98,23 @@
     const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_yxLCOU94zhGck9yvGYch5Q_ePCPd9Yq";
     const indepLoginForm = document.getElementById("indepLoginForm");
-    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    });
+
+    async function redirectIfLoggedIn(){
+      if (!supabaseClient) return;
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session?.user){
+        window.location.href = "indep-dashboard.html";
+      }
+    }
+
+    redirectIfLoggedIn();
 
     if (indepLoginForm){
       indepLoginForm.addEventListener("submit", (event) => {

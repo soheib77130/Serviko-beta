@@ -182,13 +182,20 @@
     const messageList = document.getElementById("messageList");
     const messageInput = document.getElementById("messageInput");
     const sendMessage = document.getElementById("sendMessage");
-    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    });
     let currentRequest = null;
     let currentIndep = null;
 
     async function hydrateProfile(){
       if (!supabaseClient) return;
-      const { data: { user } } = await supabaseClient.auth.getUser();
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const user = session?.user;
       if (!user){
         window.location.href = "indep-login.html";
         return;
@@ -354,7 +361,8 @@
     if (toggleAvailability){
       toggleAvailability.addEventListener("click", async () => {
         if (!supabaseClient) return;
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const user = session?.user;
         if (!user) return;
         const { data } = await supabaseClient
           .from("independants")
@@ -373,7 +381,8 @@
     if (searchRequest){
       searchRequest.addEventListener("click", async () => {
         if (!supabaseClient) return;
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const user = session?.user;
         if (!user) return;
         const { data: requests } = await supabaseClient
           .from("requests")
@@ -449,7 +458,8 @@
       sendMessage.addEventListener("click", async () => {
         if (!currentRequest || !supabaseClient || !messageInput?.value) return;
         const channel = currentRequest.status === "confirme" ? "fil" : "instant";
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const user = session?.user;
         if (!user) return;
         const { error } = await supabaseClient
           .from("request_messages")

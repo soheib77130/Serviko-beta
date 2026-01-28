@@ -145,7 +145,13 @@
     const indepProgress = document.getElementById("indepProgress");
     const indepProgressText = document.getElementById("indepProgressText");
     const indepStatus = document.getElementById("indepStatus");
-    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    });
 
     function computeProgress(fields){
       const total = fields.length;
