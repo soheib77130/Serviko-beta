@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Serviko — Tableau de bord client</title>
+  <meta name="description" content="Tableau de bord client Serviko." />
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --card:#111827;
+      --muted:#9ca3af;
+      --text:#e5e7eb;
+      --accent:#22c55e;
+      --accent2:#60a5fa;
+      --radius:18px;
+      --shadow: 0 16px 40px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(96,165,250,.18), transparent 55%),
+                  radial-gradient(900px 700px at 80% 0%, rgba(34,197,94,.16), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.35;
+    }
+    a{color:inherit; text-decoration:none}
+    .container{max-width:1100px; margin:0 auto; padding:24px}
+    .nav{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800}
+    .logo{
+      width:36px; height:36px; border-radius:12px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display:grid; place-items:center; font-weight:900; color:#071018;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:10px 12px; border-radius:14px; font-weight:800; cursor:pointer;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+    }
+    .card{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.55);
+      border-radius: var(--radius);
+      padding:18px;
+      box-shadow: var(--shadow);
+    }
+    .cards2{display:grid; grid-template-columns: repeat(2, 1fr); gap:12px}
+    @media (max-width: 900px){ .cards2{grid-template-columns:1fr} }
+    .hint{color:var(--muted); font-weight:650}
+    .list{margin:0; padding:0; list-style:none; display:grid; gap:8px}
+    .pill{padding:6px 10px; border-radius:999px; background: rgba(96,165,250,.15); border:1px solid rgba(96,165,250,.22); font-weight:700; font-size:12px}
+    .panel{display:grid; gap:12px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="nav">
+      <a class="brand" href="index.html">
+        <div class="logo">S</div>
+        <div>Serviko</div>
+      </a>
+      <a class="btn" href="index.html#client">Retour à l'espace client</a>
+    </header>
+
+    <section class="panel">
+      <div class="card">
+        <h1>Tableau de bord client</h1>
+        <p class="hint">Résumé de vos prestations et demandes en cours (exemple statique).</p>
+      </div>
+
+      <div class="cards2">
+        <div class="card">
+          <h3>Demandes actives</h3>
+          <ul class="list">
+            <li><strong>Site vitrine</strong> — devis en attente</li>
+            <li><strong>Logo</strong> — en cours (livraison J+3)</li>
+            <li><strong>Montage vidéo</strong> — messages non lus (2)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Actions rapides</h3>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <span class="pill">Valider une livraison</span>
+            <span class="pill">Relancer un indépendant</span>
+            <span class="pill">Télécharger une facture</span>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+            <button class="btn" type="button" id="supportBtn">Contacter le support</button>
+            <button class="btn" type="button" id="logoutBtn">Se déconnecter</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const supportBtn = document.getElementById("supportBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const header = document.querySelector("h1");
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function hydrateProfile(){
+      if (!supabaseClient) return;
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user){
+        window.location.href = "login.html";
+        return;
+      }
+      if (user.user_metadata?.role && user.user_metadata.role !== "client"){
+        await supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+        return;
+      }
+      const { data } = await supabaseClient
+        .from("clients")
+        .select("firstname, lastname")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const name = [data?.firstname, data?.lastname].filter(Boolean).join(" ");
+      if (header){
+        header.textContent = name ? `Tableau de bord de ${name}` : "Tableau de bord client";
+      }
+    }
+
+    hydrateProfile();
+
+    if (supportBtn){
+      supportBtn.addEventListener("click", () => {
+        alert("Support contacté (démo). Nous revenons vers vous rapidement.");
+      });
+    }
+
+    if (logoutBtn){
+      logoutBtn.addEventListener("click", async () => {
+        if (supabaseClient){
+          await supabaseClient.auth.signOut();
+        }
+        alert("Vous êtes déconnecté.");
+        window.location.href = "index.html";
+      });
+    }
+  </script>
+</body>
+</html>
