@@ -137,11 +137,15 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
     const indepSignupForm = document.getElementById("indepSignupForm");
     const indepProgress = document.getElementById("indepProgress");
     const indepProgressText = document.getElementById("indepProgressText");
     const indepStatus = document.getElementById("indepStatus");
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function computeProgress(fields){
       const total = fields.length;
@@ -174,6 +178,10 @@
       updateIndepUI();
       indepSignupForm.addEventListener("submit", (event) => {
         event.preventDefault();
+        if (!supabaseClient){
+          alert("Configurez Supabase pour activer l'inscription.");
+          return;
+        }
         const formData = new FormData(indepSignupForm);
         const password = formData.get("password");
         const confirm = formData.get("confirm");
@@ -195,9 +203,41 @@
           skills: formData.get("skills").toString().trim(),
           password: password.toString()
         };
-        localStorage.setItem("servikoIndep", JSON.stringify(user));
-        alert("Compte indépendant créé ! Redirection vers votre tableau de bord.");
-        window.location.href = "indep-dashboard.html";
+        supabaseClient.auth.signUp({
+          email: user.email,
+          password: user.password,
+          options: {
+            data: {
+              role: "independant",
+              firstname: user.firstname,
+              lastname: user.lastname
+            }
+          }
+        }).then(async ({ data, error }) => {
+          if (error){
+            alert(error.message);
+            return;
+          }
+          const userId = data.user?.id;
+          if (userId){
+            await supabaseClient.from("independants").insert({
+              user_id: userId,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              email: user.email,
+              phone: user.phone,
+              city: user.city,
+              status: user.status,
+              portfolio: user.portfolio,
+              siret: user.siret,
+              daily_rate: Number(user.dailyRate),
+              experience: user.experience,
+              skills: user.skills
+            });
+          }
+          alert("Compte indépendant créé ! Vérifiez votre email pour valider l'inscription.");
+          window.location.href = "indep-dashboard.html";
+        });
       });
     }
   </script>

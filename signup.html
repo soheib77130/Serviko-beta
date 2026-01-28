@@ -120,11 +120,16 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
     const signupForm = document.getElementById("signupForm");
     const signupProgress = document.getElementById("signupProgress");
     const signupProgressText = document.getElementById("signupProgressText");
     const signupStatus = document.getElementById("signupStatus");
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function computeProgress(fields){
       const total = fields.length;
@@ -157,6 +162,10 @@
       updateSignupUI();
       signupForm.addEventListener("submit", (event) => {
         event.preventDefault();
+        if (!supabaseClient){
+          alert("Configurez Supabase pour activer l'inscription.");
+          return;
+        }
         const formData = new FormData(signupForm);
         const password = formData.get("password");
         const confirm = formData.get("confirm");
@@ -164,16 +173,41 @@
           alert("Les mots de passe ne correspondent pas.");
           return;
         }
-        const user = {
+        const payload = {
           firstname: formData.get("firstname").toString().trim(),
           lastname: formData.get("lastname").toString().trim(),
           email: formData.get("email").toString().trim(),
-          company: formData.get("company").toString().trim(),
-          password: password.toString()
+          company: formData.get("company").toString().trim()
         };
-        localStorage.setItem("servikoUser", JSON.stringify(user));
-        alert("Compte créé ! Vous allez être redirigé vers votre tableau de bord.");
-        window.location.href = "dashboard.html";
+        supabaseClient.auth.signUp({
+          email: payload.email,
+          password: password.toString(),
+          options: {
+            data: {
+              role: "client",
+              firstname: payload.firstname,
+              lastname: payload.lastname,
+              company: payload.company
+            }
+          }
+        }).then(async ({ data, error }) => {
+          if (error){
+            alert(error.message);
+            return;
+          }
+          const userId = data.user?.id;
+          if (userId){
+            await supabaseClient.from("clients").insert({
+              user_id: userId,
+              firstname: payload.firstname,
+              lastname: payload.lastname,
+              email: payload.email,
+              company: payload.company
+            });
+          }
+          alert("Compte créé ! Vérifiez votre email pour valider l'inscription.");
+          window.location.href = "dashboard.html";
+        });
       });
     }
   </script>

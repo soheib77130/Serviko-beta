@@ -93,27 +93,38 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
     const indepLoginForm = document.getElementById("indepLoginForm");
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     if (indepLoginForm){
       indepLoginForm.addEventListener("submit", (event) => {
         event.preventDefault();
+        if (!supabaseClient){
+          alert("Configurez Supabase pour activer la connexion.");
+          return;
+        }
         const formData = new FormData(indepLoginForm);
         const email = formData.get("email").toString().trim();
         const password = formData.get("password").toString();
-        const saved = localStorage.getItem("servikoIndep");
-        if (!saved){
-          alert("Aucun compte indépendant enregistré. Merci de créer un compte.");
-          window.location.href = "indep-signup.html";
-          return;
-        }
-        const user = JSON.parse(saved);
-        if (user.email === email && user.password === password){
-          alert(`Bienvenue ${user.firstname || ""} ! Connexion réussie.`);
-          window.location.href = "indep-dashboard.html";
-          return;
-        }
-        alert("Email ou mot de passe incorrect.");
+        supabaseClient.auth.signInWithPassword({ email, password })
+          .then(async ({ data, error }) => {
+            if (error){
+              alert(error.message);
+              return;
+            }
+            const role = data.user?.user_metadata?.role;
+            if (role && role !== "independant"){
+              await supabaseClient.auth.signOut();
+              alert("Ce compte n'est pas un compte indépendant.");
+              return;
+            }
+            alert("Connexion réussie.");
+            window.location.href = "indep-dashboard.html";
+          });
       });
     }
   </script>

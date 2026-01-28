@@ -110,7 +110,10 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
     const supportBtn = document.getElementById("supportBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const headline = document.getElementById("indepHeadline");
@@ -119,33 +122,50 @@
     const city = document.getElementById("indepCity");
     const exp = document.getElementById("indepExperience");
     const skills = document.getElementById("indepSkills");
-    const saved = localStorage.getItem("servikoIndep");
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    if (saved){
-      const user = JSON.parse(saved);
-      const name = [user.firstname, user.lastname].filter(Boolean).join(" ");
+    async function hydrateProfile(){
+      if (!supabaseClient) return;
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user){
+        window.location.href = "indep-login.html";
+        return;
+      }
+      if (user.user_metadata?.role && user.user_metadata.role !== "independant"){
+        await supabaseClient.auth.signOut();
+        window.location.href = "indep-login.html";
+        return;
+      }
+      const { data } = await supabaseClient
+        .from("independants")
+        .select("firstname, lastname, city, experience, skills, daily_rate")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const name = [data?.firstname, data?.lastname].filter(Boolean).join(" ");
       if (headline){
         headline.textContent = name ? `Bienvenue ${name}, voici votre activité.` : "Suivi des missions et revenus.";
       }
       if (rate){
-        rate.textContent = user.dailyRate ? `€${user.dailyRate} / jour` : "—";
+        rate.textContent = data?.daily_rate ? `€${data.daily_rate} / jour` : "—";
       }
       if (city){
-        city.textContent = user.city ? `Ville : ${user.city}` : "Ville : —";
+        city.textContent = data?.city ? `Ville : ${data.city}` : "Ville : —";
       }
       if (exp){
-        exp.textContent = user.experience ? `Expérience : ${user.experience}` : "Expérience : —";
+        exp.textContent = data?.experience ? `Expérience : ${data.experience}` : "Expérience : —";
       }
       if (skills){
-        const value = user.skills ? user.skills.split(",")[0].trim() : "—";
+        const value = data?.skills ? data.skills.split(",")[0].trim() : "—";
         skills.textContent = value ? `Compétence phare : ${value}` : "Compétence phare : —";
       }
       if (revenue){
-        const base = Number(user.dailyRate || 0);
+        const base = Number(data?.daily_rate || 0);
         const estimate = base ? Math.round(base * 8.5) : 0;
         revenue.textContent = `€${estimate}`;
       }
     }
+
+    hydrateProfile();
 
     if (supportBtn){
       supportBtn.addEventListener("click", () => {
@@ -154,8 +174,10 @@
     }
 
     if (logoutBtn){
-      logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("servikoIndep");
+      logoutBtn.addEventListener("click", async () => {
+        if (supabaseClient){
+          await supabaseClient.auth.signOut();
+        }
         alert("Vous êtes déconnecté.");
         window.location.href = "index.html";
       });

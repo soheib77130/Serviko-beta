@@ -98,17 +98,39 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
     const supportBtn = document.getElementById("supportBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const header = document.querySelector("h1");
-    const saved = localStorage.getItem("servikoUser");
+    const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    if (saved && header){
-      const user = JSON.parse(saved);
-      const name = [user.firstname, user.lastname].filter(Boolean).join(" ");
-      header.textContent = name ? `Tableau de bord de ${name}` : "Tableau de bord client";
+    async function hydrateProfile(){
+      if (!supabaseClient) return;
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user){
+        window.location.href = "login.html";
+        return;
+      }
+      if (user.user_metadata?.role && user.user_metadata.role !== "client"){
+        await supabaseClient.auth.signOut();
+        window.location.href = "login.html";
+        return;
+      }
+      const { data } = await supabaseClient
+        .from("clients")
+        .select("firstname, lastname")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const name = [data?.firstname, data?.lastname].filter(Boolean).join(" ");
+      if (header){
+        header.textContent = name ? `Tableau de bord de ${name}` : "Tableau de bord client";
+      }
     }
+
+    hydrateProfile();
 
     if (supportBtn){
       supportBtn.addEventListener("click", () => {
@@ -117,8 +139,10 @@
     }
 
     if (logoutBtn){
-      logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("servikoUser");
+      logoutBtn.addEventListener("click", async () => {
+        if (supabaseClient){
+          await supabaseClient.auth.signOut();
+        }
         alert("Vous êtes déconnecté.");
         window.location.href = "index.html";
       });
