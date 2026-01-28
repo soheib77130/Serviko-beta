@@ -86,10 +86,57 @@
           </div>
         </div>
         <div class="card">
-          <h3>Demandes actives</h3>
-          <ul class="list" id="indepRequests">
-            <li>Chargement des missions...</li>
-          </ul>
+          <h3>Disponibilité</h3>
+          <p class="hint">Passez en ligne pour recevoir des demandes.</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button class="btn" type="button" id="toggleAvailability">Se mettre en ligne</button>
+            <button class="btn" type="button" id="searchRequest">Rechercher une demande</button>
+          </div>
+          <div style="margin-top:10px">
+            <span class="pill" id="availabilityStatus">Hors ligne</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Missions assignées</h3>
+        <ul class="list" id="indepRequests">
+          <li>Chargement des missions...</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Messagerie & cahier des charges</h3>
+        <p class="hint" id="conversationHint">Sélectionnez une mission pour discuter avec le client.</p>
+        <div class="panel" style="grid-template-columns: 1.2fr 2fr; gap:16px">
+          <div>
+            <h4>Vos missions</h4>
+            <ul class="list" id="conversationList">
+              <li>Chargement des missions...</li>
+            </ul>
+          </div>
+          <div class="card" style="background:rgba(17,24,39,.7)">
+            <h4 id="conversationTitle">Discussion</h4>
+            <div class="pill" id="conversationStatus">—</div>
+            <div style="margin-top:12px">
+              <h5>Cahier des charges</h5>
+              <div class="list" id="specChecklist">Sélectionnez une mission.</div>
+              <p class="hint">Paiement simulé : vous validez le prix avant lancement.</p>
+              <div class="panel" style="margin-top:12px">
+                <input type="number" id="negotiatedPrice" placeholder="Prix proposé (€)" min="0" />
+                <button class="btn" type="button" id="saveSpecBtn">Mettre à jour</button>
+                <button class="btn primary" type="button" id="confirmSpecBtn">Confirmer et passer au fil principal</button>
+              </div>
+            </div>
+            <div style="margin-top:16px">
+              <h5>Messages</h5>
+              <div class="list" id="messageList">Aucun message.</div>
+              <div style="margin-top:12px; display:flex; gap:8px">
+                <input type="text" id="messageInput" placeholder="Écrire un message..." />
+                <button class="btn primary" type="button" id="sendMessage">Envoyer</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -121,7 +168,23 @@
     const exp = document.getElementById("indepExperience");
     const skills = document.getElementById("indepSkills");
     const indepRequests = document.getElementById("indepRequests");
+    const toggleAvailability = document.getElementById("toggleAvailability");
+    const searchRequest = document.getElementById("searchRequest");
+    const availabilityStatus = document.getElementById("availabilityStatus");
+    const conversationList = document.getElementById("conversationList");
+    const conversationTitle = document.getElementById("conversationTitle");
+    const conversationStatus = document.getElementById("conversationStatus");
+    const conversationHint = document.getElementById("conversationHint");
+    const specChecklist = document.getElementById("specChecklist");
+    const negotiatedPrice = document.getElementById("negotiatedPrice");
+    const saveSpecBtn = document.getElementById("saveSpecBtn");
+    const confirmSpecBtn = document.getElementById("confirmSpecBtn");
+    const messageList = document.getElementById("messageList");
+    const messageInput = document.getElementById("messageInput");
+    const sendMessage = document.getElementById("sendMessage");
     const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentRequest = null;
+    let currentIndep = null;
 
     async function hydrateProfile(){
       if (!supabaseClient) return;
@@ -140,6 +203,7 @@
         .select("firstname, lastname, city, experience, skills, daily_rate")
         .eq("user_id", user.id)
         .maybeSingle();
+      currentIndep = data;
       const name = [data?.firstname, data?.lastname].filter(Boolean).join(" ");
       if (headline){
         headline.textContent = name ? `Bienvenue ${name}, voici votre activité.` : "Suivi des missions et revenus.";
@@ -162,25 +226,8 @@
         const estimate = base ? Math.round(base * 8.5) : 0;
         revenue.textContent = `€${estimate}`;
       }
-      if (indepRequests){
-        const { data: requests, error } = await supabaseClient
-          .from("requests")
-          .select("title, status, created_at")
-          .eq("assigned_indep_user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(5);
-        if (error){
-          indepRequests.innerHTML = "<li>Impossible de charger les missions.</li>";
-          return;
-        }
-        if (!requests || requests.length === 0){
-          indepRequests.innerHTML = "<li>Aucune mission assignée pour le moment.</li>";
-          return;
-        }
-        indepRequests.innerHTML = requests.map((item) => (
-          `<li><strong>${item.title}</strong> — ${item.status || "nouveau"}</li>`
-        )).join(\"\\n\");
-      }
+      await loadAssignedRequests(user.id);
+      await hydrateAvailability(user.id);
     }
 
     hydrateProfile();
@@ -198,6 +245,225 @@
         }
         alert("Vous êtes déconnecté.");
         window.location.href = "index.html";
+      });
+    }
+
+    async function hydrateAvailability(userId){
+      const { data } = await supabaseClient
+        .from("independants")
+        .select("status")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const statusValue = data?.status || "hors_ligne";
+      if (availabilityStatus) availabilityStatus.textContent = statusValue;
+      if (toggleAvailability){
+        toggleAvailability.textContent = statusValue === "en_ligne" ? "Se mettre hors ligne" : "Se mettre en ligne";
+      }
+    }
+
+    async function loadAssignedRequests(userId){
+      if (!indepRequests) return;
+      const { data: requests, error } = await supabaseClient
+        .from("requests")
+        .select("id, title, status, created_at, match_summary")
+        .eq("assigned_indep_user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (error){
+        indepRequests.innerHTML = "<li>Impossible de charger les missions.</li>";
+        return;
+      }
+      if (!requests || requests.length === 0){
+        indepRequests.innerHTML = "<li>Aucune mission assignée pour le moment.</li>";
+        if (conversationList){
+          conversationList.innerHTML = "<li>Aucune mission active.</li>";
+        }
+        return;
+      }
+      indepRequests.innerHTML = requests.map((item) => (
+        `<li><strong>${item.title}</strong> — ${item.status || "nouveau"}</li>`
+      )).join(\"\\n\");
+      if (conversationList){
+        conversationList.innerHTML = requests.map((item) => (
+          `<li><button class="btn" data-request="${item.id}">${item.title}</button><div class="hint">${item.match_summary || item.status}</div></li>`
+        )).join(\"\\n\");
+        conversationList.querySelectorAll("button[data-request]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const requestId = Number(btn.dataset.request);
+            loadConversation(requestId, userId);
+          });
+        });
+      }
+    }
+
+    function renderChecklist(items){
+      if (!specChecklist) return;
+      if (!items || items.length === 0){
+        specChecklist.textContent = "Aucun cahier des charges enregistré.";
+        return;
+      }
+      specChecklist.innerHTML = items.map((item, index) => (
+        `<label style="display:flex; gap:8px; align-items:center;">
+          <input type="checkbox" data-index="${index}" ${item.checked ? "checked" : ""}/>
+          ${item.label}
+        </label>`
+      )).join("");
+    }
+
+    async function loadConversation(requestId, userId){
+      const { data: request } = await supabaseClient
+        .from("requests")
+        .select("id, title, status, spec_checklist, negotiated_price")
+        .eq("id", requestId)
+        .eq("assigned_indep_user_id", userId)
+        .maybeSingle();
+      if (!request) return;
+      currentRequest = request;
+      if (conversationTitle) conversationTitle.textContent = request.title || "Discussion";
+      if (conversationStatus) conversationStatus.textContent = request.status || "nouveau";
+      if (conversationHint) conversationHint.textContent = request.status === "negociation"
+        ? "Messagerie instantanée pour cadrer le prix et le cahier des charges."
+        : "Fil principal après validation du cahier des charges.";
+      renderChecklist(request.spec_checklist || []);
+      if (negotiatedPrice) negotiatedPrice.value = request.negotiated_price || "";
+      await loadMessages(request.id, request.status);
+    }
+
+    async function loadMessages(requestId, status){
+      if (!messageList) return;
+      const channel = status === "confirme" ? "fil" : "instant";
+      const { data: messages, error } = await supabaseClient
+        .from("request_messages")
+        .select("sender_role, body, created_at")
+        .eq("request_id", requestId)
+        .eq("channel", channel)
+        .order("created_at", { ascending: true });
+      if (error){
+        messageList.innerHTML = "<div class='hint'>Impossible de charger les messages.</div>";
+        return;
+      }
+      if (!messages || messages.length === 0){
+        messageList.innerHTML = "<div class='hint'>Aucun message pour le moment.</div>";
+        return;
+      }
+      messageList.innerHTML = messages.map((msg) => (
+        `<div><strong>${msg.sender_role}</strong> — ${msg.body}</div>`
+      )).join("");
+    }
+
+    if (toggleAvailability){
+      toggleAvailability.addEventListener("click", async () => {
+        if (!supabaseClient) return;
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data } = await supabaseClient
+          .from("independants")
+          .select("status")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        const nextStatus = data?.status === "en_ligne" ? "hors_ligne" : "en_ligne";
+        await supabaseClient
+          .from("independants")
+          .update({ status: nextStatus })
+          .eq("user_id", user.id);
+        await hydrateAvailability(user.id);
+      });
+    }
+
+    if (searchRequest){
+      searchRequest.addEventListener("click", async () => {
+        if (!supabaseClient) return;
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: requests } = await supabaseClient
+          .from("requests")
+          .select("id, title, category, skills, budget, status")
+          .is("assigned_indep_user_id", null)
+          .in("status", ["en_attente", "match_en_cours"]);
+        if (!requests || requests.length === 0){
+          alert("Aucune demande en attente pour le moment.");
+          return;
+        }
+        const ranked = requests.map((request) => ({
+          request,
+          score: computeScore(request, currentIndep || {})
+        })).sort((a, b) => b.score - a.score);
+        const best = ranked[0];
+        await supabaseClient
+          .from("requests")
+          .update({ assigned_indep_user_id: user.id, status: "negociation", match_score: best.score })
+          .eq("id", best.request.id);
+        alert(`Nouvelle mission assignée : ${best.request.title}`);
+        await loadAssignedRequests(user.id);
+      });
+    }
+
+    function normalizeSkills(skills){
+      if (!skills) return [];
+      return skills.toLowerCase().split(",").map((skill) => skill.trim()).filter(Boolean);
+    }
+
+    function computeScore(request, indep){
+      const requestSkills = normalizeSkills(request.skills).concat(normalizeSkills(request.category));
+      const indepSkills = normalizeSkills(indep.skills);
+      const shared = requestSkills.filter((skill) => indepSkills.includes(skill));
+      const skillScore = shared.length * 15;
+      const budget = Number(request.budget || 0);
+      const rate = Number(indep.daily_rate || 0);
+      const budgetFit = rate ? Math.max(0, 20 - Math.abs(budget - rate * 5) / 50) : 5;
+      return Math.round(skillScore + budgetFit);
+    }
+
+    if (saveSpecBtn){
+      saveSpecBtn.addEventListener("click", async () => {
+        if (!currentRequest || !supabaseClient) return;
+        const checklist = Array.from(specChecklist?.querySelectorAll("input[type='checkbox']") || [])
+          .map((checkbox) => ({
+            label: checkbox.parentElement?.textContent?.trim() || "",
+            checked: checkbox.checked
+          }));
+        const price = negotiatedPrice?.value ? Number(negotiatedPrice.value) : null;
+        await supabaseClient
+          .from("requests")
+          .update({ spec_checklist: checklist, negotiated_price: price })
+          .eq("id", currentRequest.id);
+        alert("Cahier des charges mis à jour.");
+      });
+    }
+
+    if (confirmSpecBtn){
+      confirmSpecBtn.addEventListener("click", async () => {
+        if (!currentRequest || !supabaseClient) return;
+        await supabaseClient
+          .from("requests")
+          .update({ status: "confirme" })
+          .eq("id", currentRequest.id);
+        currentRequest.status = "confirme";
+        if (conversationStatus) conversationStatus.textContent = "confirme";
+        await loadMessages(currentRequest.id, currentRequest.status);
+        alert("Cahier des charges confirmé. La conversation passe au fil principal.");
+      });
+    }
+
+    if (sendMessage){
+      sendMessage.addEventListener("click", async () => {
+        if (!currentRequest || !supabaseClient || !messageInput?.value) return;
+        const channel = currentRequest.status === "confirme" ? "fil" : "instant";
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
+        const { error } = await supabaseClient
+          .from("request_messages")
+          .insert({
+            request_id: currentRequest.id,
+            sender_user_id: user.id,
+            sender_role: "independant",
+            channel,
+            body: messageInput.value.trim()
+          });
+        if (!error){
+          messageInput.value = "";
+          await loadMessages(currentRequest.id, currentRequest.status);
+        }
       });
     }
   </script>

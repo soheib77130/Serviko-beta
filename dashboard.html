@@ -83,13 +83,48 @@
         <div class="card">
           <h3>Actions rapides</h3>
           <div style="display:flex; gap:8px; flex-wrap:wrap">
-            <span class="pill">Valider une livraison</span>
+            <span class="pill">Simulation de paiement</span>
             <span class="pill">Relancer un indépendant</span>
             <span class="pill">Télécharger une facture</span>
           </div>
           <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
             <button class="btn" type="button" id="supportBtn">Contacter le support</button>
             <button class="btn" type="button" id="logoutBtn">Se déconnecter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Messagerie & cahier des charges</h3>
+        <p class="hint" id="conversationHint">Sélectionnez une demande pour discuter avec l'indépendant.</p>
+        <div class="panel" style="grid-template-columns: 1.2fr 2fr; gap:16px">
+          <div>
+            <h4>Vos demandes</h4>
+            <ul class="list" id="conversationList">
+              <li>Chargement des demandes...</li>
+            </ul>
+          </div>
+          <div class="card" style="background:rgba(17,24,39,.7)">
+            <h4 id="conversationTitle">Discussion</h4>
+            <div class="pill" id="conversationStatus">—</div>
+            <div style="margin-top:12px">
+              <h5>Cahier des charges</h5>
+              <div class="list" id="specChecklist">Sélectionnez une demande.</div>
+              <p class="hint">Paiement simulé : le prix est finalisé ici avant mise en production.</p>
+              <div class="panel" style="margin-top:12px">
+                <input type="number" id="negotiatedPrice" placeholder="Prix convenu (€)" min="0" />
+                <button class="btn" type="button" id="saveSpecBtn">Mettre à jour</button>
+                <button class="btn primary" type="button" id="confirmSpecBtn">Confirmer et passer au fil principal</button>
+              </div>
+            </div>
+            <div style="margin-top:16px">
+              <h5>Messages</h5>
+              <div class="list" id="messageList">Aucun message.</div>
+              <div style="margin-top:12px; display:flex; gap:8px">
+                <input type="text" id="messageInput" placeholder="Écrire un message..." />
+                <button class="btn primary" type="button" id="sendMessage">Envoyer</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -104,6 +139,18 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const header = document.querySelector("h1");
     const clientRequests = document.getElementById("clientRequests");
+    const conversationList = document.getElementById("conversationList");
+    const conversationTitle = document.getElementById("conversationTitle");
+    const conversationStatus = document.getElementById("conversationStatus");
+    const conversationHint = document.getElementById("conversationHint");
+    const specChecklist = document.getElementById("specChecklist");
+    const negotiatedPrice = document.getElementById("negotiatedPrice");
+    const saveSpecBtn = document.getElementById("saveSpecBtn");
+    const confirmSpecBtn = document.getElementById("confirmSpecBtn");
+    const messageList = document.getElementById("messageList");
+    const messageInput = document.getElementById("messageInput");
+    const sendMessage = document.getElementById("sendMessage");
+    let currentRequest = null;
     const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function hydrateProfile(){
@@ -130,7 +177,7 @@
       if (clientRequests){
         const { data: requests, error } = await supabaseClient
           .from("requests")
-          .select("title, status, created_at")
+          .select("id, title, status, created_at, match_summary, negotiated_price")
           .eq("client_user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(5);
@@ -145,6 +192,17 @@
         clientRequests.innerHTML = requests.map((item) => (
           `<li><strong>${item.title}</strong> — ${item.status || "nouveau"}</li>`
         )).join(\"\\n\");
+        if (conversationList){
+          conversationList.innerHTML = requests.map((item) => (
+            `<li><button class="btn" data-request="${item.id}">${item.title}</button><div class="hint">${item.match_summary || item.status}</div></li>`
+          )).join(\"\\n\");
+          conversationList.querySelectorAll("button[data-request]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const requestId = Number(btn.dataset.request);
+              loadConversation(requestId, user.id);
+            });
+          });
+        }
       }
     }
 
@@ -163,6 +221,115 @@
         }
         alert("Vous êtes déconnecté.");
         window.location.href = "index.html";
+      });
+    }
+
+    async function loadConversation(requestId, userId){
+      if (!supabaseClient) return;
+      const { data: request } = await supabaseClient
+        .from("requests")
+        .select("id, title, status, spec_checklist, negotiated_price")
+        .eq("id", requestId)
+        .eq("client_user_id", userId)
+        .maybeSingle();
+      if (!request) return;
+      currentRequest = request;
+      if (conversationTitle) conversationTitle.textContent = request.title || "Discussion";
+      if (conversationStatus) conversationStatus.textContent = request.status || "nouveau";
+      if (conversationHint) conversationHint.textContent = request.status === "negociation"
+        ? "Messagerie instantanée pour cadrer le prix et le cahier des charges."
+        : "Fil principal après validation du cahier des charges.";
+      renderChecklist(request.spec_checklist || []);
+      if (negotiatedPrice) negotiatedPrice.value = request.negotiated_price || "";
+      await loadMessages(request.id, request.status);
+    }
+
+    function renderChecklist(items){
+      if (!specChecklist) return;
+      if (!items || items.length === 0){
+        specChecklist.textContent = "Aucun cahier des charges enregistré.";
+        return;
+      }
+      specChecklist.innerHTML = items.map((item, index) => (
+        `<label style="display:flex; gap:8px; align-items:center;">
+          <input type="checkbox" data-index="${index}" ${item.checked ? "checked" : ""}/>
+          ${item.label}
+        </label>`
+      )).join("");
+    }
+
+    async function loadMessages(requestId, status){
+      if (!messageList) return;
+      const channel = status === "confirme" ? "fil" : "instant";
+      const { data: messages, error } = await supabaseClient
+        .from("request_messages")
+        .select("sender_role, body, created_at")
+        .eq("request_id", requestId)
+        .eq("channel", channel)
+        .order("created_at", { ascending: true });
+      if (error){
+        messageList.innerHTML = "<div class='hint'>Impossible de charger les messages.</div>";
+        return;
+      }
+      if (!messages || messages.length === 0){
+        messageList.innerHTML = "<div class='hint'>Aucun message pour le moment.</div>";
+        return;
+      }
+      messageList.innerHTML = messages.map((msg) => (
+        `<div><strong>${msg.sender_role}</strong> — ${msg.body}</div>`
+      )).join("");
+    }
+
+    if (saveSpecBtn){
+      saveSpecBtn.addEventListener("click", async () => {
+        if (!currentRequest || !supabaseClient) return;
+        const checklist = Array.from(specChecklist?.querySelectorAll("input[type='checkbox']") || [])
+          .map((checkbox) => ({
+            label: checkbox.parentElement?.textContent?.trim() || "",
+            checked: checkbox.checked
+          }));
+        const price = negotiatedPrice?.value ? Number(negotiatedPrice.value) : null;
+        await supabaseClient
+          .from("requests")
+          .update({ spec_checklist: checklist, negotiated_price: price })
+          .eq("id", currentRequest.id);
+        alert("Cahier des charges mis à jour.");
+      });
+    }
+
+    if (confirmSpecBtn){
+      confirmSpecBtn.addEventListener("click", async () => {
+        if (!currentRequest || !supabaseClient) return;
+        await supabaseClient
+          .from("requests")
+          .update({ status: "confirme" })
+          .eq("id", currentRequest.id);
+        currentRequest.status = "confirme";
+        if (conversationStatus) conversationStatus.textContent = "confirme";
+        await loadMessages(currentRequest.id, currentRequest.status);
+        alert("Cahier des charges confirmé. La conversation passe au fil principal.");
+      });
+    }
+
+    if (sendMessage){
+      sendMessage.addEventListener("click", async () => {
+        if (!currentRequest || !supabaseClient || !messageInput?.value) return;
+        const channel = currentRequest.status === "confirme" ? "fil" : "instant";
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return;
+        const { error } = await supabaseClient
+          .from("request_messages")
+          .insert({
+            request_id: currentRequest.id,
+            sender_user_id: user.id,
+            sender_role: "client",
+            channel,
+            body: messageInput.value.trim()
+          });
+        if (!error){
+          messageInput.value = "";
+          await loadMessages(currentRequest.id, currentRequest.status);
+        }
       });
     }
   </script>
