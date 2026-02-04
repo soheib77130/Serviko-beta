@@ -9,6 +9,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     const exp = document.getElementById("indepExperience");
     const skills = document.getElementById("indepSkills");
     const indepRequests = document.getElementById("indepRequests");
+    const openRequests = document.getElementById("openRequests");
     const toggleAvailability = document.getElementById("toggleAvailability");
     const searchRequest = document.getElementById("searchRequest");
     const availabilityStatus = document.getElementById("availabilityStatus");
@@ -39,6 +40,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     let currentIndep = null;
     let currentUserId = null;
     let profileReady = false;
+    let hasGoneOffline = false;
 
     function logActivity(message){
       if (!activityLog) return;
@@ -120,6 +122,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       }
       await loadAssignedRequests(user.id);
       await hydrateAvailability(user.id);
+      await loadOpenRequests({ filterByCategory: true });
       profileReady = true;
       setAvailabilityControlsReady(true);
       logActivity("Profil chargé, actions activées.");
@@ -133,6 +136,37 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     } else {
       logActivity("Supabase indisponible (script CDN bloqué ?).");
     }
+
+    async function updateIndepStatus(statusValue, { silent } = {}){
+      if (!supabaseClient || !currentUserId) return;
+      try {
+        await supabaseClient
+          .from("independants")
+          .update({ status: statusValue })
+          .eq("user_id", currentUserId);
+        if (!silent){
+          logActivity(`Statut mis à jour (auto) : ${statusValue}.`);
+        }
+      } catch (error) {
+        if (!silent){
+          logActivity("Erreur lors de la mise à jour auto du statut.");
+        }
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && !hasGoneOffline){
+        hasGoneOffline = true;
+        updateIndepStatus("hors_ligne", { silent: true });
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (!hasGoneOffline){
+        hasGoneOffline = true;
+        updateIndepStatus("hors_ligne", { silent: true });
+      }
+    });
 
     function setAvailabilityControlsReady(isReady){
       if (toggleAvailability) toggleAvailability.disabled = false;
@@ -254,6 +288,17 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
           });
         });
       }
+    }
+
+    function renderOpenRequests(items){
+      if (!openRequests) return;
+      if (!items || items.length === 0){
+        openRequests.innerHTML = "<li>Aucune demande en attente actuellement.</li>";
+        return;
+      }
+      openRequests.innerHTML = items.map((item) => (
+        `<li><strong>${item.title}</strong> — ${item.category || "Sans catégorie"} · ${item.budget ? `€${item.budget}` : "Budget à définir"}</li>`
+      )).join(\"\\n\");
     }
 
     function renderChecklist(items){
@@ -398,6 +443,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
             }
             logActivity(result.message);
           }
+          await loadOpenRequests({ filterByCategory: true });
         }
       });
     }
@@ -433,6 +479,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
           availabilityFeedback.textContent = message;
         }
         logActivity(message);
+        await loadOpenRequests({ filterByCategory: false });
       });
     }
 
@@ -486,6 +533,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
         request,
         score: computeScore(request, currentIndep || {})
       })).sort((a, b) => b.score - a.score);
+      renderOpenRequests(ranked.slice(0, 5).map((item) => item.request));
       const best = ranked[0];
       const initialPrice = Number(best.request.budget || 0) || null;
       const { error: assignError } = await supabaseClient
@@ -515,6 +563,29 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       }
       await loadAssignedRequests(userId);
       return { message: `Mission assignée : ${best.request.title}` };
+    }
+
+    async function loadOpenRequests({ filterByCategory } = {}){
+      if (!supabaseClient) return;
+      const { data: requests, error } = await supabaseClient
+        .from("requests")
+        .select("id, title, category, budget, status")
+        .is("assigned_indep_user_id", null)
+        .in("status", ["en_attente", "match_en_cours"])
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error){
+        renderOpenRequests([]);
+        return;
+      }
+      let list = requests || [];
+      if (filterByCategory){
+        const categoryValue = availabilityCategory?.value?.trim();
+        if (categoryValue){
+          list = list.filter((request) => request.category?.trim() === categoryValue);
+        }
+      }
+      renderOpenRequests(list);
     }
 
     async function attemptAutoMatch(userId){
