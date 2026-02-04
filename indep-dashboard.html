@@ -91,6 +91,17 @@
         <div class="card">
           <h3>Disponibilité</h3>
           <p class="hint">Passez en ligne pour recevoir des demandes.</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
+            <select id="availabilityCategory" style="min-width:220px">
+              <option value="">Catégorie cible</option>
+              <option>Site web</option>
+              <option>Logo & design</option>
+              <option>Vidéo & montage</option>
+              <option>Rédaction</option>
+              <option>Autre</option>
+            </select>
+            <span class="pill" id="availabilityNote">Sélectionnez une catégorie</span>
+          </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap">
             <button class="btn" type="button" id="toggleAvailability">Se mettre en ligne</button>
             <button class="btn" type="button" id="searchRequest">Rechercher une demande</button>
@@ -174,6 +185,8 @@
     const toggleAvailability = document.getElementById("toggleAvailability");
     const searchRequest = document.getElementById("searchRequest");
     const availabilityStatus = document.getElementById("availabilityStatus");
+    const availabilityCategory = document.getElementById("availabilityCategory");
+    const availabilityNote = document.getElementById("availabilityNote");
     const conversationList = document.getElementById("conversationList");
     const conversationTitle = document.getElementById("conversationTitle");
     const conversationStatus = document.getElementById("conversationStatus");
@@ -194,6 +207,7 @@
     });
     let currentRequest = null;
     let currentIndep = null;
+    let currentUserId = null;
 
     async function hydrateProfile(){
       if (!supabaseClient) return;
@@ -203,6 +217,7 @@
         window.location.href = "indep-login.html";
         return;
       }
+      currentUserId = user.id;
       if (user.user_metadata?.role && user.user_metadata.role !== "independant"){
         await supabaseClient.auth.signOut();
         window.location.href = "indep-login.html";
@@ -236,11 +251,29 @@
         const estimate = base ? Math.round(base * 8.5) : 0;
         revenue.textContent = `€${estimate}`;
       }
+      if (availabilityCategory){
+        const storedCategory = window.localStorage.getItem("indep-category");
+        if (storedCategory){
+          availabilityCategory.value = storedCategory;
+        }
+      }
       await loadAssignedRequests(user.id);
       await hydrateAvailability(user.id);
+      await attemptAutoMatch(user.id);
     }
 
     hydrateProfile();
+
+    if (availabilityCategory){
+      availabilityCategory.addEventListener("change", () => {
+        if (availabilityNote){
+          const categoryValue = availabilityCategory.value.trim();
+          availabilityNote.textContent = categoryValue
+            ? `Catégorie : ${categoryValue}`
+            : "Sélectionnez une catégorie";
+        }
+      });
+    }
 
     if (supportBtn){
       supportBtn.addEventListener("click", () => {
@@ -282,9 +315,15 @@
         .eq("user_id", userId)
         .maybeSingle();
       const statusValue = data?.status || "hors_ligne";
-      if (availabilityStatus) availabilityStatus.textContent = statusValue;
+      if (availabilityStatus) availabilityStatus.textContent = statusValue === "en_ligne" ? "En ligne" : "Hors ligne";
       if (toggleAvailability){
         toggleAvailability.textContent = statusValue === "en_ligne" ? "Se mettre hors ligne" : "Se mettre en ligne";
+      }
+      if (availabilityNote){
+        const categoryValue = availabilityCategory?.value?.trim();
+        availabilityNote.textContent = categoryValue
+          ? `Catégorie : ${categoryValue}`
+          : "Sélectionnez une catégorie";
       }
     }
 
@@ -308,11 +347,11 @@
         return;
       }
       indepRequests.innerHTML = requests.map((item) => (
-        `<li><strong>${item.title}</strong> — ${item.status || "nouveau"}</li>`
+        `<li><strong>${item.title}</strong> — ${formatStatus(item.status)}</li>`
       )).join(\"\\n\");
       if (conversationList){
         conversationList.innerHTML = requests.map((item) => (
-          `<li><button class="btn" data-request="${item.id}">${item.title}</button><div class="hint">${item.match_summary || item.status}</div></li>`
+          `<li><button class="btn" data-request="${item.id}">${item.title}</button><div class="hint">${item.match_summary || formatStatus(item.status)}</div></li>`
         )).join(\"\\n\");
         conversationList.querySelectorAll("button[data-request]").forEach((btn) => {
           btn.addEventListener("click", () => {
@@ -340,7 +379,7 @@
     async function loadConversation(requestId, userId){
       const { data: request } = await supabaseClient
         .from("requests")
-        .select("id, title, status, spec_checklist, negotiated_price")
+        .select("id, title, status, spec_checklist, negotiated_price, match_summary")
         .eq("id", requestId)
         .eq("assigned_indep_user_id", userId)
         .maybeSingle();
@@ -348,9 +387,15 @@
       currentRequest = request;
       if (conversationTitle) conversationTitle.textContent = request.title || "Discussion";
       if (conversationStatus) conversationStatus.textContent = request.status || "nouveau";
-      if (conversationHint) conversationHint.textContent = request.status === "negociation"
-        ? "Messagerie instantanée pour cadrer le prix et le cahier des charges."
-        : "Fil principal après validation du cahier des charges.";
+      if (conversationHint){
+        if (request.status === "en_attente"){
+          conversationHint.textContent = "Demande en attente. Relancez la recherche de clients en ligne.";
+        } else if (request.status === "negociation"){
+          conversationHint.textContent = request.match_summary || "Messagerie instantanée pour cadrer le prix et le cahier des charges.";
+        } else {
+          conversationHint.textContent = "Fil principal après validation du cahier des charges.";
+        }
+      }
       renderChecklist(request.spec_checklist || []);
       if (negotiatedPrice) negotiatedPrice.value = request.negotiated_price || "";
       await loadMessages(request.id, request.status);
@@ -384,6 +429,12 @@
         const { data: { session } } = await supabaseClient.auth.getSession();
         const user = session?.user;
         if (!user) return;
+        const categoryValue = availabilityCategory?.value?.trim();
+        if (!categoryValue){
+          alert("Merci de choisir une catégorie avant de passer en ligne.");
+          return;
+        }
+        window.localStorage.setItem("indep-category", categoryValue);
         const { data } = await supabaseClient
           .from("independants")
           .select("status")
@@ -395,35 +446,17 @@
           .update({ status: nextStatus })
           .eq("user_id", user.id);
         await hydrateAvailability(user.id);
+        if (nextStatus === "en_ligne"){
+          await runMatching(user.id);
+        }
       });
     }
 
     if (searchRequest){
       searchRequest.addEventListener("click", async () => {
-        if (!supabaseClient) return;
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        const user = session?.user;
-        if (!user) return;
-        const { data: requests } = await supabaseClient
-          .from("requests")
-          .select("id, title, category, skills, budget, status")
-          .is("assigned_indep_user_id", null)
-          .in("status", ["en_attente", "match_en_cours"]);
-        if (!requests || requests.length === 0){
-          alert("Aucune demande en attente pour le moment.");
-          return;
-        }
-        const ranked = requests.map((request) => ({
-          request,
-          score: computeScore(request, currentIndep || {})
-        })).sort((a, b) => b.score - a.score);
-        const best = ranked[0];
-        await supabaseClient
-          .from("requests")
-          .update({ assigned_indep_user_id: user.id, status: "negociation", match_score: best.score })
-          .eq("id", best.request.id);
-        alert(`Nouvelle mission assignée : ${best.request.title}`);
-        await loadAssignedRequests(user.id);
+        if (!currentUserId) return;
+        const result = await runMatching(currentUserId);
+        alert(result?.message || "Recherche terminée.");
       });
     }
 
@@ -441,6 +474,72 @@
       const rate = Number(indep.daily_rate || 0);
       const budgetFit = rate ? Math.max(0, 20 - Math.abs(budget - rate * 5) / 50) : 5;
       return Math.round(skillScore + budgetFit);
+    }
+
+    function formatStatus(status){
+      const map = {
+        match_en_cours: "Match en cours",
+        en_attente: "En attente",
+        negociation: "Négociation",
+        confirme: "Confirmé"
+      };
+      return map[status] || status || "nouveau";
+    }
+
+    async function runMatching(userId){
+      if (!supabaseClient) return;
+      const categoryValue = availabilityCategory?.value?.trim();
+      const { data: requests } = await supabaseClient
+        .from("requests")
+        .select("id, title, category, skills, budget, status")
+        .is("assigned_indep_user_id", null)
+        .in("status", ["en_attente", "match_en_cours"]);
+      if (!requests || requests.length === 0){
+        return { message: "Aucune demande en attente pour le moment." };
+      }
+      const filtered = categoryValue
+        ? requests.filter((request) => request.category?.trim() === categoryValue)
+        : requests;
+      if (filtered.length === 0){
+        return { message: "Aucune demande ne correspond à cette catégorie." };
+      }
+      const ranked = filtered.map((request) => ({
+        request,
+        score: computeScore(request, currentIndep || {})
+      })).sort((a, b) => b.score - a.score);
+      const best = ranked[0];
+      const initialPrice = Number(best.request.budget || 0) || null;
+      await supabaseClient
+        .from("requests")
+        .update({
+          assigned_indep_user_id: userId,
+          status: "negociation",
+          match_score: best.score,
+          match_summary: `Match basé sur ${best.score} points (compétences et budget).`,
+          negotiated_price: initialPrice
+        })
+        .eq("id", best.request.id);
+      if (initialPrice){
+        await supabaseClient.from("request_messages").insert({
+          request_id: best.request.id,
+          sender_role: "system",
+          channel: "instant",
+          body: `Proposition initiale : ${initialPrice} € (ajustable avant validation).`
+        });
+      }
+      await loadAssignedRequests(userId);
+      return { message: `Mission assignée : ${best.request.title}` };
+    }
+
+    async function attemptAutoMatch(userId){
+      if (!supabaseClient || !availabilityCategory?.value?.trim()) return;
+      const { data } = await supabaseClient
+        .from("independants")
+        .select("status")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (data?.status !== "en_ligne") return;
+      await runMatching(userId);
     }
 
     if (saveSpecBtn){
@@ -463,9 +562,14 @@
     if (confirmSpecBtn){
       confirmSpecBtn.addEventListener("click", async () => {
         if (!currentRequest || !supabaseClient) return;
+        const agreedPrice = negotiatedPrice?.value ? Number(negotiatedPrice.value) : null;
+        if (!agreedPrice){
+          alert("Merci d'indiquer un prix convenu avant de confirmer.");
+          return;
+        }
         await supabaseClient
           .from("requests")
-          .update({ status: "confirme" })
+          .update({ status: "confirme", negotiated_price: agreedPrice })
           .eq("id", currentRequest.id);
         currentRequest.status = "confirme";
         if (conversationStatus) conversationStatus.textContent = "confirme";
