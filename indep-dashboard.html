@@ -108,6 +108,7 @@
           </div>
           <div style="margin-top:10px">
             <span class="pill" id="availabilityStatus">Hors ligne</span>
+            <span class="pill" id="availabilityFeedback">En attente d'action</span>
           </div>
         </div>
       </div>
@@ -187,6 +188,7 @@
     const availabilityStatus = document.getElementById("availabilityStatus");
     const availabilityCategory = document.getElementById("availabilityCategory");
     const availabilityNote = document.getElementById("availabilityNote");
+    const availabilityFeedback = document.getElementById("availabilityFeedback");
     const conversationList = document.getElementById("conversationList");
     const conversationTitle = document.getElementById("conversationTitle");
     const conversationStatus = document.getElementById("conversationStatus");
@@ -272,6 +274,9 @@
             ? `Catégorie : ${categoryValue}`
             : "Sélectionnez une catégorie";
         }
+        if (availabilityFeedback){
+          availabilityFeedback.textContent = "Prêt pour la recherche.";
+        }
       });
     }
 
@@ -324,6 +329,11 @@
         availabilityNote.textContent = categoryValue
           ? `Catégorie : ${categoryValue}`
           : "Sélectionnez une catégorie";
+      }
+      if (availabilityFeedback){
+        availabilityFeedback.textContent = statusValue === "en_ligne"
+          ? "En ligne : recherche active."
+          : "En attente d'action";
       }
     }
 
@@ -425,14 +435,24 @@
 
     if (toggleAvailability){
       toggleAvailability.addEventListener("click", async () => {
-        if (!supabaseClient) return;
+        if (!supabaseClient){
+          alert("Supabase n'est pas configuré.");
+          return;
+        }
         const { data: { session } } = await supabaseClient.auth.getSession();
         const user = session?.user;
-        if (!user) return;
+        if (!user){
+          alert("Veuillez vous reconnecter.");
+          window.location.href = "indep-login.html";
+          return;
+        }
         const categoryValue = availabilityCategory?.value?.trim();
         if (!categoryValue){
           alert("Merci de choisir une catégorie avant de passer en ligne.");
           return;
+        }
+        if (availabilityFeedback){
+          availabilityFeedback.textContent = "Mise à jour de votre statut...";
         }
         window.localStorage.setItem("indep-category", categoryValue);
         const { data, error } = await supabaseClient
@@ -451,6 +471,9 @@
           .eq("user_id", user.id);
         if (updateError){
           alert("Impossible de mettre à jour votre disponibilité.");
+          if (availabilityFeedback){
+            availabilityFeedback.textContent = "Erreur lors de la mise à jour.";
+          }
           return;
         }
         await hydrateAvailability(user.id);
@@ -458,6 +481,9 @@
           const result = await runMatching(user.id);
           if (result?.message){
             alert(result.message);
+            if (availabilityFeedback){
+              availabilityFeedback.textContent = result.message;
+            }
           }
         }
       });
@@ -465,13 +491,24 @@
 
     if (searchRequest){
       searchRequest.addEventListener("click", async () => {
-        if (!currentUserId) return;
+        if (!currentUserId){
+          alert("Veuillez vous reconnecter.");
+          window.location.href = "indep-login.html";
+          return;
+        }
         if (!availabilityCategory?.value?.trim()){
           alert("Merci de choisir une catégorie avant de rechercher.");
           return;
         }
+        if (availabilityFeedback){
+          availabilityFeedback.textContent = "Recherche de demandes en cours...";
+        }
         const result = await runMatching(currentUserId);
-        alert(result?.message || "Recherche terminée.");
+        const message = result?.message || "Recherche terminée.";
+        alert(message);
+        if (availabilityFeedback){
+          availabilityFeedback.textContent = message;
+        }
       });
     }
 
