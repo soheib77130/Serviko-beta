@@ -1,266 +1,3 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Serviko — Tableau de bord indépendant</title>
-  <meta name="description" content="Tableau de bord indépendant Serviko." />
-  <style>
-    :root{
-      --bg:#0b0f17;
-      --card:#111827;
-      --muted:#9ca3af;
-      --text:#e5e7eb;
-      --accent:#22c55e;
-      --accent2:#60a5fa;
-      --radius:18px;
-      --shadow: 0 16px 40px rgba(0,0,0,.35);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 800px at 20% 10%, rgba(96,165,250,.18), transparent 55%),
-                  radial-gradient(900px 700px at 80% 0%, rgba(34,197,94,.16), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-      line-height:1.35;
-    }
-    a{color:inherit; text-decoration:none}
-    .container{max-width:1100px; margin:0 auto; padding:24px}
-    .nav{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px}
-    .brand{display:flex; align-items:center; gap:10px; font-weight:800}
-    .logo{
-      width:36px; height:36px; border-radius:12px;
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      display:grid; place-items:center; font-weight:900; color:#071018;
-    }
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:10px 12px; border-radius:14px; font-weight:800; cursor:pointer;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-    }
-    .card{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(17,24,39,.55);
-      border-radius: var(--radius);
-      padding:18px;
-      box-shadow: var(--shadow);
-    }
-    .cards2{display:grid; grid-template-columns: repeat(2, 1fr); gap:12px}
-    @media (max-width: 900px){ .cards2{grid-template-columns:1fr} }
-    .hint{color:var(--muted); font-weight:650}
-    .list{margin:0; padding:0; list-style:none; display:grid; gap:8px}
-    .pill{padding:6px 10px; border-radius:999px; background: rgba(96,165,250,.15); border:1px solid rgba(96,165,250,.22); font-weight:700; font-size:12px}
-    .panel{display:grid; gap:12px}
-    .kpi{display:grid; gap:6px}
-    .kpi strong{font-size:24px}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header class="nav">
-      <a class="brand" href="index.html">
-        <div class="logo">S</div>
-        <div>Serviko</div>
-      </a>
-      <div style="display:flex; gap:8px; flex-wrap:wrap">
-        <a class="btn" href="index.html#independant">Retour à l'espace indépendant</a>
-        <button class="btn" type="button" data-logout>Se déconnecter</button>
-      </div>
-    </header>
-
-    <section class="panel">
-      <div class="card">
-        <h1>Tableau de bord indépendant</h1>
-        <p class="hint" id="indepHeadline">Suivi des missions et revenus.</p>
-        <p class="hint" id="buildTag">Version: indep-dashboard-2026-02-04</p>
-      </div>
-
-      <div class="card" id="jsWarning">
-        <h3>JavaScript requis</h3>
-        <p class="hint">
-          Les boutons ne fonctionneront pas si JavaScript est désactivé.
-          Vérifiez que votre navigateur/extension ne bloque pas les scripts.
-        </p>
-      </div>
-
-      <div class="cards2">
-        <div class="card">
-          <h3>Revenus</h3>
-          <div class="kpi">
-            <span class="hint">Ce mois-ci</span>
-            <strong id="indepRevenue">€0</strong>
-            <span class="hint">TJM estimé</span>
-            <strong id="indepRate">—</strong>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Disponibilité</h3>
-          <p class="hint">Passez en ligne pour recevoir des demandes.</p>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
-            <select id="availabilityCategory" style="min-width:220px">
-              <option value="">Catégorie cible</option>
-              <option>Site web</option>
-              <option>Logo & design</option>
-              <option>Vidéo & montage</option>
-              <option>Rédaction</option>
-              <option>Autre</option>
-            </select>
-            <span class="pill" id="availabilityNote">Sélectionnez une catégorie</span>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap">
-            <button class="btn" type="button" id="toggleAvailability">Se mettre en ligne</button>
-            <button class="btn" type="button" id="searchRequest">Rechercher une demande</button>
-          </div>
-          <div style="margin-top:10px">
-            <span class="pill" id="availabilityStatus">Hors ligne</span>
-            <span class="pill" id="availabilityFeedback">En attente d'action</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Missions assignées</h3>
-        <ul class="list" id="indepRequests">
-          <li>Chargement des missions...</li>
-        </ul>
-      </div>
-
-      <div class="card" id="activityCard">
-        <h3>Activité</h3>
-        <p class="hint">Journal local pour diagnostiquer les actions.</p>
-        <ul class="list" id="activityLog">
-          <li>Initialisation du tableau de bord...</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Demandes en attente</h3>
-        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
-        <ul class="list" id="openRequests">
-          <li>Aucune demande affichée pour le moment.</li>
-        </ul>
-      </div>
-
-      <div class="card" id="activityCard">
-        <h3>Activité</h3>
-        <p class="hint">Journal local pour diagnostiquer les actions.</p>
-        <ul class="list" id="activityLog">
-          <li>Initialisation du tableau de bord...</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Demandes en attente</h3>
-        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
-        <ul class="list" id="openRequests">
-          <li>Aucune demande affichée pour le moment.</li>
-        </ul>
-      </div>
-
-      <div class="card" id="activityCard">
-        <h3>Activité</h3>
-        <p class="hint">Journal local pour diagnostiquer les actions.</p>
-        <ul class="list" id="activityLog">
-          <li>Initialisation du tableau de bord...</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Demandes en attente</h3>
-        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
-        <ul class="list" id="openRequests">
-          <li>Aucune demande affichée pour le moment.</li>
-        </ul>
-      </div>
-
-      <div class="card" id="activityCard">
-        <h3>Activité</h3>
-        <p class="hint">Journal local pour diagnostiquer les actions.</p>
-        <ul class="list" id="activityLog">
-          <li>Initialisation du tableau de bord...</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Demandes en attente</h3>
-        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
-        <ul class="list" id="openRequests">
-          <li>Aucune demande affichée pour le moment.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Demandes en attente</h3>
-        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
-        <ul class="list" id="openRequests">
-          <li>Aucune demande affichée pour le moment.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Demandes en attente</h3>
-        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
-        <ul class="list" id="openRequests">
-          <li>Aucune demande affichée pour le moment.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Messagerie & cahier des charges</h3>
-        <p class="hint" id="conversationHint">Sélectionnez une mission pour discuter avec le client.</p>
-        <div class="panel" style="grid-template-columns: 1.2fr 2fr; gap:16px">
-          <div>
-            <h4>Vos missions</h4>
-            <ul class="list" id="conversationList">
-              <li>Chargement des missions...</li>
-            </ul>
-          </div>
-          <div class="card" style="background:rgba(17,24,39,.7)">
-            <h4 id="conversationTitle">Discussion</h4>
-            <div class="pill" id="conversationStatus">—</div>
-            <div style="margin-top:12px">
-              <h5>Cahier des charges</h5>
-              <div class="list" id="specChecklist">Sélectionnez une mission.</div>
-              <p class="hint">Paiement simulé : vous validez le prix avant lancement.</p>
-              <div class="panel" style="margin-top:12px">
-                <input type="number" id="negotiatedPrice" placeholder="Prix proposé (€)" min="0" />
-                <button class="btn" type="button" id="saveSpecBtn">Mettre à jour</button>
-                <button class="btn primary" type="button" id="confirmSpecBtn">Confirmer et passer au fil principal</button>
-              </div>
-            </div>
-            <div style="margin-top:16px">
-              <h5>Messages</h5>
-              <div class="list" id="messageList">Aucun message.</div>
-              <div style="margin-top:12px; display:flex; gap:8px">
-                <input type="text" id="messageInput" placeholder="Écrire un message..." />
-                <button class="btn primary" type="button" id="sendMessage">Envoyer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Profil public</h3>
-        <div style="display:flex; gap:8px; flex-wrap:wrap">
-          <span class="pill" id="indepCity">Ville : —</span>
-          <span class="pill" id="indepExperience">Expérience : —</span>
-          <span class="pill" id="indepSkills">Compétences : —</span>
-        </div>
-        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
-          <button class="btn" type="button" id="supportBtn">Contacter le support</button>
-          <button class="btn" type="button" data-logout>Se déconnecter</button>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
 const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_yxLCOU94zhGck9yvGYch5Q_ePCPd9Yq";
     const supportBtn = document.getElementById("supportBtn");
@@ -290,6 +27,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     const messageList = document.getElementById("messageList");
     const messageInput = document.getElementById("messageInput");
     const sendMessage = document.getElementById("sendMessage");
+    const activityLog = document.getElementById("activityLog");
     const jsWarning = document.getElementById("jsWarning");
     const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
@@ -304,34 +42,47 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     let profileReady = false;
     let hasGoneOffline = false;
 
+    function logActivity(message){
+      if (!activityLog) return;
+      const item = document.createElement("li");
+      item.textContent = message;
+      activityLog.prepend(item);
+    }
+
     if (jsWarning){
       jsWarning.style.display = "none";
     }
 
-    let profileTimeout = null;
+    logActivity("JavaScript chargé.");
+
+    document.addEventListener("click", (event) => {
+      const label = event.target?.textContent?.trim();
+      if (label){
+        logActivity(`Clic détecté : ${label}`);
+      }
+    });
+
+    window.addEventListener("error", (event) => {
+      logActivity(`Erreur script : ${event.message}`);
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+      logActivity(`Promesse rejetée : ${event.reason?.message || event.reason}`);
+    });
 
     async function hydrateProfile(){
-      if (!supabaseClient){
-        if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
-        if (availabilityFeedback) availabilityFeedback.textContent = "Supabase indisponible : vérifiez la connexion.";
-        if (indepRequests) indepRequests.innerHTML = "<li>Impossible de charger les missions (connexion).</li>";
-        if (openRequests) openRequests.innerHTML = "<li>Impossible de charger les demandes (connexion).</li>";
+      logActivity("Chargement du profil...");
+      if (!supabaseClient) return;
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const user = session?.user;
+      if (!user){
+        logActivity("Session absente, redirection vers la connexion.");
+        window.location.href = "indep-login.html";
         return;
       }
-      try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        const user = session?.user;
-        if (!user){
-          if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
-          if (availabilityFeedback) availabilityFeedback.textContent = "Connexion requise pour activer la disponibilité.";
-          window.location.href = "indep-login.html";
-          return;
-        }
       currentUserId = user.id;
       if (user.user_metadata?.role && user.user_metadata.role !== "independant"){
         await supabaseClient.auth.signOut();
-        if (indepRequests) indepRequests.innerHTML = "<li>Connectez-vous pour voir vos missions.</li>";
-        if (openRequests) openRequests.innerHTML = "<li>Connectez-vous pour voir les demandes.</li>";
         window.location.href = "indep-login.html";
         return;
       }
@@ -374,31 +125,17 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       await loadOpenRequests({ filterByCategory: true });
       profileReady = true;
       setAvailabilityControlsReady(true);
-        await attemptAutoMatch(user.id);
-      } catch (error) {
-        if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
-        if (availabilityFeedback) availabilityFeedback.textContent = "Impossible de charger le profil. Vérifiez la connexion.";
-        if (indepRequests) indepRequests.innerHTML = "<li>Erreur de chargement des missions.</li>";
-        if (openRequests) openRequests.innerHTML = "<li>Erreur de chargement des demandes.</li>";
-      } finally {
-        if (profileTimeout){
-          clearTimeout(profileTimeout);
-          profileTimeout = null;
-        }
-      }
+      logActivity("Profil chargé, actions activées.");
+      await attemptAutoMatch(user.id);
     }
-
-    profileTimeout = setTimeout(() => {
-      if (!profileReady){
-        if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
-        if (availabilityFeedback) availabilityFeedback.textContent = "Chargement trop long. Vérifiez la connexion.";
-        if (indepRequests) indepRequests.innerHTML = "<li>Chargement interrompu. Rafraîchissez la page.</li>";
-        if (openRequests) openRequests.innerHTML = "<li>Chargement interrompu. Rafraîchissez la page.</li>";
-      }
-    }, 5000);
 
     hydrateProfile();
 
+    if (supabaseClient){
+      logActivity("Supabase initialisé.");
+    } else {
+      logActivity("Supabase indisponible (script CDN bloqué ?).");
+    }
 
     async function updateIndepStatus(statusValue, { silent } = {}){
       if (!supabaseClient || !currentUserId) return;
@@ -407,7 +144,13 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
           .from("independants")
           .update({ status: statusValue })
           .eq("user_id", currentUserId);
+        if (!silent){
+          logActivity(`Statut mis à jour (auto) : ${statusValue}.`);
+        }
       } catch (error) {
+        if (!silent){
+          logActivity("Erreur lors de la mise à jour auto du statut.");
+        }
       }
     }
 
@@ -436,6 +179,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     }
 
     setAvailabilityControlsReady(false);
+    logActivity("Scripts chargés, attente du profil.");
 
     if (availabilityCategory){
       availabilityCategory.addEventListener("change", () => {
@@ -532,13 +276,11 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       }
       indepRequests.innerHTML = requests.map((item) => (
         `<li><strong>${item.title}</strong> — ${formatStatus(item.status)}</li>`
-      )).join("\
-");
+      )).join(\"\\n\");
       if (conversationList){
         conversationList.innerHTML = requests.map((item) => (
           `<li><button class="btn" data-request="${item.id}">${item.title}</button><div class="hint">${item.match_summary || formatStatus(item.status)}</div></li>`
-        )).join("\
-");
+        )).join(\"\\n\");
         conversationList.querySelectorAll("button[data-request]").forEach((btn) => {
           btn.addEventListener("click", () => {
             const requestId = Number(btn.dataset.request);
@@ -556,8 +298,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       }
       openRequests.innerHTML = items.map((item) => (
         `<li><strong>${item.title}</strong> — ${item.category || "Sans catégorie"} · ${item.budget ? `€${item.budget}` : "Budget à définir"}</li>`
-      )).join("\
-");
+      )).join(\"\\n\");
     }
 
     function renderChecklist(items){
@@ -623,30 +364,32 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
 
     if (toggleAvailability){
       toggleAvailability.addEventListener("click", async () => {
+        logActivity("Action : se mettre en ligne/hors ligne.");
         if (!profileReady){
           if (availabilityFeedback){
             availabilityFeedback.textContent = "Chargement en cours, merci de patienter.";
           }
+          logActivity("Profil pas prêt, action bloquée.");
           return;
         }
         if (!supabaseClient){
           alert("Supabase n'est pas configuré.");
+          logActivity("Supabase indisponible.");
           return;
         }
         const { data: { session } } = await supabaseClient.auth.getSession();
         const user = session?.user;
         if (!user){
           alert("Veuillez vous reconnecter.");
+          logActivity("Session manquante, redirection.");
           window.location.href = "indep-login.html";
           return;
         }
         const categoryValue = availabilityCategory?.value?.trim();
         if (!categoryValue){
           alert("Merci de choisir une catégorie avant de passer en ligne.");
+          logActivity("Catégorie manquante.");
           return;
-        }
-        if (availabilityStatus){
-          availabilityStatus.textContent = "Mise à jour...";
         }
         if (availabilityFeedback){
           availabilityFeedback.textContent = "Mise à jour de votre statut...";
@@ -659,6 +402,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
           .maybeSingle();
         if (error){
           alert("Impossible de récupérer votre statut.");
+          logActivity("Erreur de lecture du statut.");
           return;
         }
         const nextStatus = data?.status === "en_ligne" ? "hors_ligne" : "en_ligne";
@@ -672,6 +416,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
           if (availabilityFeedback){
             availabilityFeedback.textContent = "Erreur lors de la mise à jour.";
           }
+          logActivity("Erreur de mise à jour du statut.");
           return;
         }
         if (!updatedRows || updatedRows.length === 0){
@@ -683,10 +428,12 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
             if (availabilityFeedback){
               availabilityFeedback.textContent = "Erreur lors de l'initialisation.";
             }
+            logActivity("Erreur d'initialisation du profil.");
             return;
           }
         }
         await hydrateAvailability(user.id);
+        logActivity(`Statut mis à jour : ${nextStatus}.`);
         if (nextStatus === "en_ligne"){
           const result = await runMatching(user.id);
           if (result?.message){
@@ -694,6 +441,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
             if (availabilityFeedback){
               availabilityFeedback.textContent = result.message;
             }
+            logActivity(result.message);
           }
           await loadOpenRequests({ filterByCategory: true });
         }
@@ -702,26 +450,27 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
 
     if (searchRequest){
       searchRequest.addEventListener("click", async () => {
+        logActivity("Action : rechercher une demande.");
         if (!profileReady){
           if (availabilityFeedback){
             availabilityFeedback.textContent = "Chargement en cours, merci de patienter.";
           }
+          logActivity("Profil pas prêt, action bloquée.");
           return;
         }
         if (!currentUserId){
           alert("Veuillez vous reconnecter.");
+          logActivity("Session manquante, redirection.");
           window.location.href = "indep-login.html";
           return;
         }
         if (!availabilityCategory?.value?.trim()){
           alert("Merci de choisir une catégorie avant de rechercher.");
+          logActivity("Catégorie manquante.");
           return;
         }
         if (availabilityFeedback){
           availabilityFeedback.textContent = "Recherche de demandes en cours...";
-        }
-        if (openRequests){
-          openRequests.innerHTML = "<li>Recherche en cours...</li>";
         }
         const result = await runMatching(currentUserId);
         const message = result?.message || "Recherche terminée.";
@@ -729,6 +478,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
         if (availabilityFeedback){
           availabilityFeedback.textContent = message;
         }
+        logActivity(message);
         await loadOpenRequests({ filterByCategory: false });
       });
     }
@@ -907,7 +657,4 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
         }
       });
     }
-</script>
   
-</body>
-</html>
