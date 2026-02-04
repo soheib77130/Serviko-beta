@@ -123,6 +123,21 @@ create policy "requests_update_indep" on public.requests
   for update using (auth.uid() = assigned_indep_user_id)
   with check (auth.uid() = assigned_indep_user_id);
 
+-- Permettre aux indépendants de voir les demandes non assignées
+create policy "requests_select_open_for_indep" on public.requests
+  for select using (
+    assigned_indep_user_id is null
+    and auth.uid() in (select user_id from public.independants)
+  );
+
+-- Permettre aux indépendants de réclamer une demande non assignée
+create policy "requests_claim_open_for_indep" on public.requests
+  for update using (
+    assigned_indep_user_id is null
+    and auth.uid() in (select user_id from public.independants)
+  )
+  with check (auth.uid() = assigned_indep_user_id);
+
 create policy "request_matches_select_client" on public.request_matches
   for select using (
     auth.uid() = (select client_user_id from public.requests where id = request_id)
