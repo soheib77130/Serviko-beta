@@ -82,10 +82,8 @@
       <div class="card" id="jsWarning">
         <h3>JavaScript requis</h3>
         <p class="hint">
-          Les boutons ne fonctionneront pas tant que le script
-          <strong>indep-dashboard.js</strong> n'est pas chargé.
-          Vérifiez que le fichier est bien publié et que votre hébergeur autorise
-          les scripts (CSP, bloqueur de contenu, etc.).
+          Les boutons ne fonctionneront pas si JavaScript est désactivé.
+          Vérifiez que votre navigateur/extension ne bloque pas les scripts.
         </p>
       </div>
 
@@ -184,6 +182,14 @@
         <p class="hint">Journal local pour diagnostiquer les actions.</p>
         <ul class="list" id="activityLog">
           <li>Initialisation du tableau de bord...</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Demandes en attente</h3>
+        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
+        <ul class="list" id="openRequests">
+          <li>Aucune demande affichée pour le moment.</li>
         </ul>
       </div>
 
@@ -313,8 +319,13 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     let profileTimeout = null;
 
     async function hydrateProfile(){
-      logActivity("Chargement du profil...");
-      if (!supabaseClient) return;
+      if (!supabaseClient){
+        if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
+        if (availabilityFeedback) availabilityFeedback.textContent = "Supabase indisponible : vérifiez la connexion.";
+        if (indepRequests) indepRequests.innerHTML = "<li>Impossible de charger les missions (connexion).</li>";
+        if (openRequests) openRequests.innerHTML = "<li>Impossible de charger les demandes (connexion).</li>";
+        return;
+      }
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         const user = session?.user;
@@ -375,6 +386,10 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       } catch (error) {
         if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
         if (availabilityFeedback) availabilityFeedback.textContent = "Impossible de charger le profil. Vérifiez la connexion.";
+        if (indepRequests) indepRequests.innerHTML = "<li>Erreur de chargement des missions.</li>";
+        if (openRequests) openRequests.innerHTML = "<li>Erreur de chargement des demandes.</li>";
+        profileReady = true;
+        setAvailabilityControlsReady(true);
       } finally {
         if (profileTimeout){
           clearTimeout(profileTimeout);
@@ -387,6 +402,10 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       if (!profileReady){
         if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
         if (availabilityFeedback) availabilityFeedback.textContent = "Chargement trop long. Vérifiez la connexion.";
+        if (indepRequests) indepRequests.innerHTML = "<li>Chargement interrompu. Rafraîchissez la page.</li>";
+        if (openRequests) openRequests.innerHTML = "<li>Chargement interrompu. Rafraîchissez la page.</li>";
+        profileReady = true;
+        setAvailabilityControlsReady(true);
       }
     }, 5000);
 
