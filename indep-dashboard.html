@@ -210,6 +210,7 @@
     let currentRequest = null;
     let currentIndep = null;
     let currentUserId = null;
+    let profileReady = false;
 
     async function hydrateProfile(){
       if (!supabaseClient) return;
@@ -261,10 +262,25 @@
       }
       await loadAssignedRequests(user.id);
       await hydrateAvailability(user.id);
+      profileReady = true;
+      setAvailabilityControlsReady(true);
       await attemptAutoMatch(user.id);
     }
 
     hydrateProfile();
+
+    function setAvailabilityControlsReady(isReady){
+      const disable = !isReady;
+      if (toggleAvailability) toggleAvailability.disabled = disable;
+      if (searchRequest) searchRequest.disabled = disable;
+      if (availabilityFeedback){
+        availabilityFeedback.textContent = isReady
+          ? availabilityFeedback.textContent
+          : "Chargement du profil...";
+      }
+    }
+
+    setAvailabilityControlsReady(false);
 
     if (availabilityCategory){
       availabilityCategory.addEventListener("change", () => {
@@ -435,6 +451,12 @@
 
     if (toggleAvailability){
       toggleAvailability.addEventListener("click", async () => {
+        if (!profileReady){
+          if (availabilityFeedback){
+            availabilityFeedback.textContent = "Chargement en cours, merci de patienter.";
+          }
+          return;
+        }
         if (!supabaseClient){
           alert("Supabase n'est pas configuré.");
           return;
@@ -465,16 +487,29 @@
           return;
         }
         const nextStatus = data?.status === "en_ligne" ? "hors_ligne" : "en_ligne";
-        const { error: updateError } = await supabaseClient
+        const { data: updatedRows, error: updateError } = await supabaseClient
           .from("independants")
           .update({ status: nextStatus })
-          .eq("user_id", user.id);
+          .eq("user_id", user.id)
+          .select("user_id");
         if (updateError){
           alert("Impossible de mettre à jour votre disponibilité.");
           if (availabilityFeedback){
             availabilityFeedback.textContent = "Erreur lors de la mise à jour.";
           }
           return;
+        }
+        if (!updatedRows || updatedRows.length === 0){
+          const { error: insertError } = await supabaseClient
+            .from("independants")
+            .insert({ user_id: user.id, status: nextStatus });
+          if (insertError){
+            alert("Impossible d'initialiser votre profil indépendant.");
+            if (availabilityFeedback){
+              availabilityFeedback.textContent = "Erreur lors de l'initialisation.";
+            }
+            return;
+          }
         }
         await hydrateAvailability(user.id);
         if (nextStatus === "en_ligne"){
@@ -491,6 +526,12 @@
 
     if (searchRequest){
       searchRequest.addEventListener("click", async () => {
+        if (!profileReady){
+          if (availabilityFeedback){
+            availabilityFeedback.textContent = "Chargement en cours, merci de patienter.";
+          }
+          return;
+        }
         if (!currentUserId){
           alert("Veuillez vous reconnecter.");
           window.location.href = "indep-login.html";
