@@ -27,6 +27,7 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     const messageInput = document.getElementById("messageInput");
     const sendMessage = document.getElementById("sendMessage");
     const activityLog = document.getElementById("activityLog");
+    const jsWarning = document.getElementById("jsWarning");
     const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         persistSession: true,
@@ -45,6 +46,12 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       item.textContent = message;
       activityLog.prepend(item);
     }
+
+    if (jsWarning){
+      jsWarning.style.display = "none";
+    }
+
+    logActivity("JavaScript chargé.");
 
     document.addEventListener("click", (event) => {
       const label = event.target?.textContent?.trim();
