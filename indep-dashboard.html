@@ -171,6 +171,22 @@
       </div>
 
       <div class="card">
+        <h3>Demandes en attente</h3>
+        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
+        <ul class="list" id="openRequests">
+          <li>Aucune demande affichée pour le moment.</li>
+        </ul>
+      </div>
+
+      <div class="card" id="activityCard">
+        <h3>Activité</h3>
+        <p class="hint">Journal local pour diagnostiquer les actions.</p>
+        <ul class="list" id="activityLog">
+          <li>Initialisation du tableau de bord...</li>
+        </ul>
+      </div>
+
+      <div class="card">
         <h3>Messagerie & cahier des charges</h3>
         <p class="hint" id="conversationHint">Sélectionnez une mission pour discuter avec le client.</p>
         <div class="panel" style="grid-template-columns: 1.2fr 2fr; gap:16px">
@@ -500,11 +516,13 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       }
       indepRequests.innerHTML = requests.map((item) => (
         `<li><strong>${item.title}</strong> — ${formatStatus(item.status)}</li>`
-      )).join(\"\\n\");
+      )).join("\
+");
       if (conversationList){
         conversationList.innerHTML = requests.map((item) => (
           `<li><button class="btn" data-request="${item.id}">${item.title}</button><div class="hint">${item.match_summary || formatStatus(item.status)}</div></li>`
-        )).join(\"\\n\");
+        )).join("\
+");
         conversationList.querySelectorAll("button[data-request]").forEach((btn) => {
           btn.addEventListener("click", () => {
             const requestId = Number(btn.dataset.request);
@@ -522,7 +540,8 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       }
       openRequests.innerHTML = items.map((item) => (
         `<li><strong>${item.title}</strong> — ${item.category || "Sans catégorie"} · ${item.budget ? `€${item.budget}` : "Budget à définir"}</li>`
-      )).join(\"\\n\");
+      )).join("\
+");
     }
 
     function renderChecklist(items){
@@ -615,6 +634,9 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
           logActivity("Catégorie manquante.");
           return;
         }
+        if (availabilityStatus){
+          availabilityStatus.textContent = "Mise à jour...";
+        }
         if (availabilityFeedback){
           availabilityFeedback.textContent = "Mise à jour de votre statut...";
         }
@@ -695,6 +717,9 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
         }
         if (availabilityFeedback){
           availabilityFeedback.textContent = "Recherche de demandes en cours...";
+        }
+        if (openRequests){
+          openRequests.innerHTML = "<li>Recherche en cours...</li>";
         }
         const result = await runMatching(currentUserId);
         const message = result?.message || "Recherche terminée.";
