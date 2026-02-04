@@ -327,6 +327,8 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       currentUserId = user.id;
       if (user.user_metadata?.role && user.user_metadata.role !== "independant"){
         await supabaseClient.auth.signOut();
+        if (indepRequests) indepRequests.innerHTML = "<li>Connectez-vous pour voir vos missions.</li>";
+        if (openRequests) openRequests.innerHTML = "<li>Connectez-vous pour voir les demandes.</li>";
         window.location.href = "indep-login.html";
         return;
       }
@@ -390,9 +392,6 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
 
     hydrateProfile();
 
-    if (!supabaseClient && availabilityFeedback){
-      availabilityFeedback.textContent = "Supabase indisponible : vérifiez la connexion.";
-    }
 
     async function updateIndepStatus(statusValue, { silent } = {}){
       if (!supabaseClient || !currentUserId) return;
