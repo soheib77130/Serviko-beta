@@ -352,6 +352,14 @@
       requestForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         if (!requestForm.checkValidity()){
+          const invalidField = requestForm.querySelector(":invalid");
+          if (invalidField){
+            const invalidStep = invalidField.closest(".step");
+            if (invalidStep){
+              currentStep = Number(invalidStep.dataset.step || 0);
+              updateStepper();
+            }
+          }
           requestForm.reportValidity();
           return;
         }
