@@ -76,6 +76,17 @@
       <div class="card">
         <h1>Tableau de bord indépendant</h1>
         <p class="hint" id="indepHeadline">Suivi des missions et revenus.</p>
+        <p class="hint" id="buildTag">Version: indep-dashboard-2026-02-04</p>
+      </div>
+
+      <div class="card" id="jsWarning">
+        <h3>JavaScript requis</h3>
+        <p class="hint">
+          Les boutons ne fonctionneront pas tant que le script
+          <strong>indep-dashboard.js</strong> n'est pas chargé.
+          Vérifiez que le fichier est bien publié et que votre hébergeur autorise
+          les scripts (CSP, bloqueur de contenu, etc.).
+        </p>
       </div>
 
       <div class="card" id="jsWarning">
@@ -195,6 +206,14 @@
       </div>
 
       <div class="card">
+        <h3>Demandes en attente</h3>
+        <p class="hint">Suggestions en direct selon votre disponibilité.</p>
+        <ul class="list" id="openRequests">
+          <li>Aucune demande affichée pour le moment.</li>
+        </ul>
+      </div>
+
+      <div class="card">
         <h3>Messagerie & cahier des charges</h3>
         <p class="hint" id="conversationHint">Sélectionnez une mission pour discuter avec le client.</p>
         <div class="panel" style="grid-template-columns: 1.2fr 2fr; gap:16px">
@@ -299,7 +318,8 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
       const { data: { session } } = await supabaseClient.auth.getSession();
       const user = session?.user;
       if (!user){
-        logActivity("Session absente, redirection vers la connexion.");
+        if (availabilityStatus) availabilityStatus.textContent = "Hors ligne";
+        if (availabilityFeedback) availabilityFeedback.textContent = "Connexion requise pour activer la disponibilité.";
         window.location.href = "indep-login.html";
         return;
       }
@@ -352,6 +372,10 @@ const SUPABASE_URL = "https://skfqoyyoahuaffshimnc.supabase.co";
     }
 
     hydrateProfile();
+
+    if (!supabaseClient && availabilityFeedback){
+      availabilityFeedback.textContent = "Supabase indisponible : vérifiez la connexion.";
+    }
 
     async function updateIndepStatus(statusValue, { silent } = {}){
       if (!supabaseClient || !currentUserId) return;
