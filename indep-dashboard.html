@@ -228,6 +228,13 @@
       activityLog.prepend(item);
     }
 
+    document.addEventListener("click", (event) => {
+      const label = event.target?.textContent?.trim();
+      if (label){
+        logActivity(`Clic détecté : ${label}`);
+      }
+    });
+
     window.addEventListener("error", (event) => {
       logActivity(`Erreur script : ${event.message}`);
     });
@@ -295,6 +302,12 @@
     }
 
     hydrateProfile();
+
+    if (supabaseClient){
+      logActivity("Supabase initialisé.");
+    } else {
+      logActivity("Supabase indisponible (script CDN bloqué ?).");
+    }
 
     function setAvailabilityControlsReady(isReady){
       if (toggleAvailability) toggleAvailability.disabled = false;
