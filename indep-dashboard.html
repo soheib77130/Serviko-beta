@@ -435,19 +435,30 @@
           return;
         }
         window.localStorage.setItem("indep-category", categoryValue);
-        const { data } = await supabaseClient
+        const { data, error } = await supabaseClient
           .from("independants")
           .select("status")
           .eq("user_id", user.id)
           .maybeSingle();
+        if (error){
+          alert("Impossible de récupérer votre statut.");
+          return;
+        }
         const nextStatus = data?.status === "en_ligne" ? "hors_ligne" : "en_ligne";
-        await supabaseClient
+        const { error: updateError } = await supabaseClient
           .from("independants")
           .update({ status: nextStatus })
           .eq("user_id", user.id);
+        if (updateError){
+          alert("Impossible de mettre à jour votre disponibilité.");
+          return;
+        }
         await hydrateAvailability(user.id);
         if (nextStatus === "en_ligne"){
-          await runMatching(user.id);
+          const result = await runMatching(user.id);
+          if (result?.message){
+            alert(result.message);
+          }
         }
       });
     }
@@ -455,6 +466,10 @@
     if (searchRequest){
       searchRequest.addEventListener("click", async () => {
         if (!currentUserId) return;
+        if (!availabilityCategory?.value?.trim()){
+          alert("Merci de choisir une catégorie avant de rechercher.");
+          return;
+        }
         const result = await runMatching(currentUserId);
         alert(result?.message || "Recherche terminée.");
       });
@@ -489,11 +504,14 @@
     async function runMatching(userId){
       if (!supabaseClient) return;
       const categoryValue = availabilityCategory?.value?.trim();
-      const { data: requests } = await supabaseClient
+      const { data: requests, error } = await supabaseClient
         .from("requests")
         .select("id, title, category, skills, budget, status")
         .is("assigned_indep_user_id", null)
         .in("status", ["en_attente", "match_en_cours"]);
+      if (error){
+        return { message: "Impossible de charger les demandes (droits d'accès Supabase)." };
+      }
       if (!requests || requests.length === 0){
         return { message: "Aucune demande en attente pour le moment." };
       }
@@ -509,7 +527,7 @@
       })).sort((a, b) => b.score - a.score);
       const best = ranked[0];
       const initialPrice = Number(best.request.budget || 0) || null;
-      await supabaseClient
+      const { error: assignError } = await supabaseClient
         .from("requests")
         .update({
           assigned_indep_user_id: userId,
@@ -519,13 +537,20 @@
           negotiated_price: initialPrice
         })
         .eq("id", best.request.id);
+      if (assignError){
+        return { message: "Impossible d'assigner la mission (droits d'accès Supabase)." };
+      }
       if (initialPrice){
-        await supabaseClient.from("request_messages").insert({
+        const { error: messageError } = await supabaseClient.from("request_messages").insert({
           request_id: best.request.id,
+          sender_user_id: userId,
           sender_role: "system",
           channel: "instant",
           body: `Proposition initiale : ${initialPrice} € (ajustable avant validation).`
         });
+        if (messageError){
+          return { message: "Mission assignée, mais le message système n'a pas pu être ajouté." };
+        }
       }
       await loadAssignedRequests(userId);
       return { message: `Mission assignée : ${best.request.title}` };
