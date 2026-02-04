@@ -120,6 +120,14 @@
         </ul>
       </div>
 
+      <div class="card" id="activityCard">
+        <h3>Activité</h3>
+        <p class="hint">Journal local pour diagnostiquer les actions.</p>
+        <ul class="list" id="activityLog">
+          <li>Initialisation du tableau de bord...</li>
+        </ul>
+      </div>
+
       <div class="card">
         <h3>Messagerie & cahier des charges</h3>
         <p class="hint" id="conversationHint">Sélectionnez une mission pour discuter avec le client.</p>
@@ -200,6 +208,7 @@
     const messageList = document.getElementById("messageList");
     const messageInput = document.getElementById("messageInput");
     const sendMessage = document.getElementById("sendMessage");
+    const activityLog = document.getElementById("activityLog");
     const supabaseClient = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         persistSession: true,
@@ -212,11 +221,28 @@
     let currentUserId = null;
     let profileReady = false;
 
+    function logActivity(message){
+      if (!activityLog) return;
+      const item = document.createElement("li");
+      item.textContent = message;
+      activityLog.prepend(item);
+    }
+
+    window.addEventListener("error", (event) => {
+      logActivity(`Erreur script : ${event.message}`);
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+      logActivity(`Promesse rejetée : ${event.reason?.message || event.reason}`);
+    });
+
     async function hydrateProfile(){
+      logActivity("Chargement du profil...");
       if (!supabaseClient) return;
       const { data: { session } } = await supabaseClient.auth.getSession();
       const user = session?.user;
       if (!user){
+        logActivity("Session absente, redirection vers la connexion.");
         window.location.href = "indep-login.html";
         return;
       }
@@ -264,15 +290,15 @@
       await hydrateAvailability(user.id);
       profileReady = true;
       setAvailabilityControlsReady(true);
+      logActivity("Profil chargé, actions activées.");
       await attemptAutoMatch(user.id);
     }
 
     hydrateProfile();
 
     function setAvailabilityControlsReady(isReady){
-      const disable = !isReady;
-      if (toggleAvailability) toggleAvailability.disabled = disable;
-      if (searchRequest) searchRequest.disabled = disable;
+      if (toggleAvailability) toggleAvailability.disabled = false;
+      if (searchRequest) searchRequest.disabled = false;
       if (availabilityFeedback){
         availabilityFeedback.textContent = isReady
           ? availabilityFeedback.textContent
@@ -281,6 +307,7 @@
     }
 
     setAvailabilityControlsReady(false);
+    logActivity("Scripts chargés, attente du profil.");
 
     if (availabilityCategory){
       availabilityCategory.addEventListener("change", () => {
@@ -298,17 +325,20 @@
 
     if (supportBtn){
       supportBtn.addEventListener("click", () => {
+        logActivity("Contact support cliqué.");
         alert("Support contacté (démo). Nous revenons vers vous rapidement.");
       });
     }
 
     async function handleLogout(){
       try {
+        logActivity("Déconnexion demandée.");
         if (supabaseClient){
           await supabaseClient.auth.signOut();
         }
       } catch (error){
         console.warn("Erreur de déconnexion", error);
+        logActivity("Erreur lors de la déconnexion.");
       } finally {
         Object.keys(window.localStorage || {}).forEach((key) => {
           if (key.includes("sb-") && key.includes("-auth-token")){
@@ -451,26 +481,31 @@
 
     if (toggleAvailability){
       toggleAvailability.addEventListener("click", async () => {
+        logActivity("Action : se mettre en ligne/hors ligne.");
         if (!profileReady){
           if (availabilityFeedback){
             availabilityFeedback.textContent = "Chargement en cours, merci de patienter.";
           }
+          logActivity("Profil pas prêt, action bloquée.");
           return;
         }
         if (!supabaseClient){
           alert("Supabase n'est pas configuré.");
+          logActivity("Supabase indisponible.");
           return;
         }
         const { data: { session } } = await supabaseClient.auth.getSession();
         const user = session?.user;
         if (!user){
           alert("Veuillez vous reconnecter.");
+          logActivity("Session manquante, redirection.");
           window.location.href = "indep-login.html";
           return;
         }
         const categoryValue = availabilityCategory?.value?.trim();
         if (!categoryValue){
           alert("Merci de choisir une catégorie avant de passer en ligne.");
+          logActivity("Catégorie manquante.");
           return;
         }
         if (availabilityFeedback){
@@ -484,6 +519,7 @@
           .maybeSingle();
         if (error){
           alert("Impossible de récupérer votre statut.");
+          logActivity("Erreur de lecture du statut.");
           return;
         }
         const nextStatus = data?.status === "en_ligne" ? "hors_ligne" : "en_ligne";
@@ -497,6 +533,7 @@
           if (availabilityFeedback){
             availabilityFeedback.textContent = "Erreur lors de la mise à jour.";
           }
+          logActivity("Erreur de mise à jour du statut.");
           return;
         }
         if (!updatedRows || updatedRows.length === 0){
@@ -508,10 +545,12 @@
             if (availabilityFeedback){
               availabilityFeedback.textContent = "Erreur lors de l'initialisation.";
             }
+            logActivity("Erreur d'initialisation du profil.");
             return;
           }
         }
         await hydrateAvailability(user.id);
+        logActivity(`Statut mis à jour : ${nextStatus}.`);
         if (nextStatus === "en_ligne"){
           const result = await runMatching(user.id);
           if (result?.message){
@@ -519,6 +558,7 @@
             if (availabilityFeedback){
               availabilityFeedback.textContent = result.message;
             }
+            logActivity(result.message);
           }
         }
       });
@@ -526,19 +566,23 @@
 
     if (searchRequest){
       searchRequest.addEventListener("click", async () => {
+        logActivity("Action : rechercher une demande.");
         if (!profileReady){
           if (availabilityFeedback){
             availabilityFeedback.textContent = "Chargement en cours, merci de patienter.";
           }
+          logActivity("Profil pas prêt, action bloquée.");
           return;
         }
         if (!currentUserId){
           alert("Veuillez vous reconnecter.");
+          logActivity("Session manquante, redirection.");
           window.location.href = "indep-login.html";
           return;
         }
         if (!availabilityCategory?.value?.trim()){
           alert("Merci de choisir une catégorie avant de rechercher.");
+          logActivity("Catégorie manquante.");
           return;
         }
         if (availabilityFeedback){
@@ -550,6 +594,7 @@
         if (availabilityFeedback){
           availabilityFeedback.textContent = message;
         }
+        logActivity(message);
       });
     }
 
