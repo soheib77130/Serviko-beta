@@ -206,6 +206,7 @@
     });
     const requestForm = document.getElementById("requestForm");
     const requestStatus = document.getElementById("requestStatus");
+    const submitButton = requestForm?.querySelector("button[type='submit']");
     const steps = Array.from(document.querySelectorAll(".step"));
     const stepper = document.getElementById("stepper");
     const prevStepBtn = document.getElementById("prevStep");
@@ -216,6 +217,7 @@
     const addChecklistItem = document.getElementById("addChecklistItem");
     const customItemInput = document.getElementById("customItemInput");
     const categorySelect = document.getElementById("categorySelect");
+    const draftKey = "serviko-request-draft";
     let currentStep = 0;
 
     const checklistByCategory = {
@@ -301,9 +303,79 @@
       requestStatus.textContent = "Connecté";
     }
 
+    function setStatus(text){
+      if (requestStatus) requestStatus.textContent = text;
+    }
+
+    function setSubmitting(isSubmitting){
+      if (submitButton){
+        submitButton.disabled = isSubmitting;
+        submitButton.textContent = isSubmitting ? "Matching en cours..." : "Lancer le match";
+      }
+    }
+
+    function collectDraft(){
+      const formData = new FormData(requestForm);
+      const checklist = Array.from(checklistContainer?.querySelectorAll("input[type='checkbox']") || [])
+        .map((checkbox) => ({
+          label: checkbox.dataset.item,
+          checked: checkbox.checked
+        }));
+      return {
+        data: Object.fromEntries(formData.entries()),
+        checklist,
+        step: currentStep
+      };
+    }
+
+    function applyDraft(draft){
+      if (!draft || !requestForm) return;
+      Object.entries(draft.data || {}).forEach(([key, value]) => {
+        const field = requestForm.querySelector(`[name="${key}"]`);
+        if (field){
+          field.value = value;
+        }
+      });
+      renderChecklist((draft.data?.category || "Autre").toString());
+      if (draft.checklist && checklistContainer){
+        checklistContainer.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+          const item = draft.checklist.find((entry) => entry.label === checkbox.dataset.item);
+          if (item) checkbox.checked = item.checked;
+        });
+      }
+      currentStep = 3;
+      updateStepper();
+      setStatus("Prêt à déposer");
+    }
+
+    function saveDraft(){
+      if (!requestForm) return;
+      const draft = collectDraft();
+      window.localStorage.setItem(draftKey, JSON.stringify(draft));
+    }
+
+    function loadDraft(){
+      try {
+        const raw = window.localStorage.getItem(draftKey);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function clearDraft(){
+      window.localStorage.removeItem(draftKey);
+    }
+
     hydrateStatus();
     renderChecklist(categorySelect?.value || "Autre");
     updateStepper();
+
+    const existingDraft = loadDraft();
+    if (existingDraft){
+      applyDraft(existingDraft);
+    }
 
     if (categorySelect){
       categorySelect.addEventListener("change", (event) => {
@@ -339,6 +411,18 @@
     if (requestForm){
       requestForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        if (!requestForm.checkValidity()){
+          const invalidField = requestForm.querySelector(":invalid");
+          if (invalidField){
+            const invalidStep = invalidField.closest(".step");
+            if (invalidStep){
+              currentStep = Number(invalidStep.dataset.step || 0);
+              updateStepper();
+            }
+          }
+          requestForm.reportValidity();
+          return;
+        }
         if (!supabaseClient){
           alert("Configurez Supabase pour activer l'envoi.");
           return;
@@ -346,7 +430,8 @@
         const { data: { session } } = await supabaseClient.auth.getSession();
         const user = session?.user;
         if (!user){
-          alert("Merci de créer un compte avant d'envoyer une demande.");
+          saveDraft();
+          alert("Créez un compte pour finaliser la demande. Vous reprendrez ici.");
           window.location.href = "signup.html";
           return;
         }
@@ -355,6 +440,8 @@
           alert("Seuls les comptes client peuvent déposer une demande.");
           return;
         }
+        setSubmitting(true);
+        setStatus("Match en cours");
         const formData = new FormData(requestForm);
         const checklist = Array.from(checklistContainer?.querySelectorAll("input[type='checkbox']") || [])
           .map((checkbox) => ({
@@ -382,16 +469,23 @@
         };
         const { data: inserted, error } = await supabaseClient.from("requests").insert(payload).select().maybeSingle();
         if (error){
+          setSubmitting(false);
+          setStatus("Erreur");
           alert(error.message);
           return;
         }
         if (!inserted){
+          setSubmitting(false);
+          setStatus("Erreur");
           alert("Demande envoyée mais la recommandation n'a pas pu être lancée.");
           window.location.href = "dashboard.html";
           return;
         }
-        await runMatching(inserted, user.id);
-        alert("Demande envoyée ! Nous lançons la recommandation.");
+        const matchResult = await runMatching(inserted, user.id);
+        setSubmitting(false);
+        setStatus(matchResult?.statusLabel || "Demande envoyée");
+        alert(matchResult?.message || "Demande envoyée ! Nous lançons la recommandation.");
+        clearDraft();
         requestForm.reset();
         window.location.href = "dashboard.html";
       });
@@ -422,10 +516,13 @@
       if (!indeps || indeps.length === 0){
         await supabaseClient
           .from("requests")
-          .update({ status: "en_attente", match_summary: "Aucun indépendant disponible pour le moment." })
+          .update({ status: "en_attente", match_summary: "Aucun indépendant disponible pour le moment. Votre demande reste en attente." })
           .eq("id", request.id)
           .eq("client_user_id", userId);
-        return;
+        return {
+          statusLabel: "En attente",
+          message: "Demande envoyée. Aucun indépendant en ligne pour le moment, nous vous avertirons dès qu'il y en a un."
+        };
       }
       const ranked = indeps.map((indep) => ({
         indep,
@@ -433,13 +530,15 @@
       })).sort((a, b) => b.score - a.score);
       const top = ranked[0];
       const matchSummary = `Match basé sur ${top.score} points (compétences et budget).`;
+      const initialPrice = Number(request.budget || 0) || null;
       await supabaseClient
         .from("requests")
         .update({
           assigned_indep_user_id: top.indep.user_id,
           status: "negociation",
           match_score: top.score,
-          match_summary: matchSummary
+          match_summary: matchSummary,
+          negotiated_price: initialPrice
         })
         .eq("id", request.id)
         .eq("client_user_id", userId);
@@ -452,6 +551,19 @@
       if (matchesPayload.length > 0){
         await supabaseClient.from("request_matches").insert(matchesPayload);
       }
+      if (initialPrice){
+        await supabaseClient.from("request_messages").insert({
+          request_id: request.id,
+          sender_user_id: userId,
+          sender_role: "system",
+          channel: "instant",
+          body: `Proposition initiale : ${initialPrice} € (ajustable avant validation).`
+        });
+      }
+      return {
+        statusLabel: "Match trouvé",
+        message: `Nous avons trouvé un indépendant en ligne. Proposition initiale : ${initialPrice || "à définir"} €.`
+      };
     }
   </script>
 </body>
