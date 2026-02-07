@@ -217,6 +217,7 @@
     const addChecklistItem = document.getElementById("addChecklistItem");
     const customItemInput = document.getElementById("customItemInput");
     const categorySelect = document.getElementById("categorySelect");
+    const draftKey = "serviko-request-draft";
     let currentStep = 0;
 
     const checklistByCategory = {
@@ -313,9 +314,68 @@
       }
     }
 
+    function collectDraft(){
+      const formData = new FormData(requestForm);
+      const checklist = Array.from(checklistContainer?.querySelectorAll("input[type='checkbox']") || [])
+        .map((checkbox) => ({
+          label: checkbox.dataset.item,
+          checked: checkbox.checked
+        }));
+      return {
+        data: Object.fromEntries(formData.entries()),
+        checklist,
+        step: currentStep
+      };
+    }
+
+    function applyDraft(draft){
+      if (!draft || !requestForm) return;
+      Object.entries(draft.data || {}).forEach(([key, value]) => {
+        const field = requestForm.querySelector(`[name="${key}"]`);
+        if (field){
+          field.value = value;
+        }
+      });
+      renderChecklist((draft.data?.category || "Autre").toString());
+      if (draft.checklist && checklistContainer){
+        checklistContainer.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+          const item = draft.checklist.find((entry) => entry.label === checkbox.dataset.item);
+          if (item) checkbox.checked = item.checked;
+        });
+      }
+      currentStep = 3;
+      updateStepper();
+      setStatus("Prêt à déposer");
+    }
+
+    function saveDraft(){
+      if (!requestForm) return;
+      const draft = collectDraft();
+      window.localStorage.setItem(draftKey, JSON.stringify(draft));
+    }
+
+    function loadDraft(){
+      try {
+        const raw = window.localStorage.getItem(draftKey);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function clearDraft(){
+      window.localStorage.removeItem(draftKey);
+    }
+
     hydrateStatus();
     renderChecklist(categorySelect?.value || "Autre");
     updateStepper();
+
+    const existingDraft = loadDraft();
+    if (existingDraft){
+      applyDraft(existingDraft);
+    }
 
     if (categorySelect){
       categorySelect.addEventListener("change", (event) => {
@@ -370,7 +430,8 @@
         const { data: { session } } = await supabaseClient.auth.getSession();
         const user = session?.user;
         if (!user){
-          alert("Merci de créer un compte avant d'envoyer une demande.");
+          saveDraft();
+          alert("Créez un compte pour finaliser la demande. Vous reprendrez ici.");
           window.location.href = "signup.html";
           return;
         }
@@ -424,6 +485,7 @@
         setSubmitting(false);
         setStatus(matchResult?.statusLabel || "Demande envoyée");
         alert(matchResult?.message || "Demande envoyée ! Nous lançons la recommandation.");
+        clearDraft();
         requestForm.reset();
         window.location.href = "dashboard.html";
       });

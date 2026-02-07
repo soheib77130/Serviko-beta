@@ -110,6 +110,10 @@
       if (!supabaseClient) return;
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session?.user){
+        if (window.localStorage.getItem("serviko-request-draft")){
+          window.location.href = "request.html";
+          return;
+        }
         window.location.href = "dashboard.html";
       }
     }
@@ -139,6 +143,10 @@
               return;
             }
             alert("Connexion réussie.");
+            if (window.localStorage.getItem("serviko-request-draft")){
+              window.location.href = "request.html";
+              return;
+            }
             window.location.href = "dashboard.html";
           });
       });

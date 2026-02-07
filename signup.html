@@ -214,6 +214,10 @@
             });
           }
           alert("Compte créé ! Vérifiez votre email pour valider l'inscription.");
+          if (window.localStorage.getItem("serviko-request-draft")){
+            window.location.href = "request.html";
+            return;
+          }
           window.location.href = "dashboard.html";
         });
       });
