@@ -44,7 +44,9 @@
       box-shadow: 0 10px 24px rgba(96,165,250,.2);
       display:grid; place-items:center;
       font-weight:900; color:#071018;
+      overflow:hidden;
     }
+    .logo svg{width:100%; height:100%; display:block}
     .navlinks{display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-weight:600}
     .navlinks a{padding:8px 10px; border-radius:12px}
     .navlinks a:hover{background:rgba(255,255,255,.06); color:var(--text)}
@@ -78,8 +80,16 @@
       pointer-events:none;
     }
     .hero > *{position:relative}
-    .heroGrid{display:grid; grid-template-columns: 1.15fr .85fr; gap:18px; align-items:start}
+    .heroGrid{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px; align-items:start}
     @media (max-width: 900px){ .heroGrid{grid-template-columns:1fr} }
+    .fadeUp{animation: fadeUp .6s ease both}
+    .fadeUp.delay-1{animation-delay:.1s}
+    .fadeUp.delay-2{animation-delay:.2s}
+    .fadeUp.delay-3{animation-delay:.3s}
+    @keyframes fadeUp{
+      from{opacity:0; transform: translateY(8px)}
+      to{opacity:1; transform: translateY(0)}
+    }
 
     h1{
       margin:14px 0 8px;
@@ -94,6 +104,15 @@
       max-width: 60ch;
     }
     .ctaRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    .serviceRow{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+    .serviceTag{
+      padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.55);
+      font-weight:700; color:var(--text);
+      transition: transform .2s ease, border-color .2s ease;
+    }
+    .serviceTag:hover{transform: translateY(-2px); border-color: rgba(255,255,255,.2)}
     .btn{
       display:inline-flex; align-items:center; justify-content:center; gap:10px;
       padding:12px 14px;
@@ -121,6 +140,22 @@
       padding:18px;
       display:grid; gap:10px;
       backdrop-filter: blur(8px);
+    }
+    .valueList{display:grid; gap:10px; margin-top:12px}
+    .valueItem{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      font-weight:700;
+    }
+    .valueItem span{
+      width:22px; height:22px; border-radius:8px;
+      display:grid; place-items:center;
+      background: rgba(96,165,250,.12);
+      border:1px solid rgba(96,165,250,.18);
+      flex:0 0 auto;
+      font-size:14px;
     }
     .kpiTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
     .badge2{
@@ -168,11 +203,11 @@
 
     .grid5{
       display:grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap:12px;
     }
-    @media (max-width: 980px){ .grid5{grid-template-columns: repeat(3, 1fr)} }
-    @media (max-width: 640px){ .grid5{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 980px){ .grid5{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .grid5{grid-template-columns: 1fr} }
 
     .cat{
       border:1px solid rgba(255,255,255,.10);
@@ -467,15 +502,27 @@
     <!-- NAV -->
     <header class="nav">
       <a class="brand" href="#top" aria-label="Serviko">
-        <div class="logo">S</div>
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="img" aria-label="Serviko logo">
+            <defs>
+              <linearGradient id="servikoGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#60a5fa"/>
+                <stop offset="100%" stop-color="#22c55e"/>
+              </linearGradient>
+            </defs>
+            <rect width="48" height="48" rx="12" fill="url(#servikoGradient)"></rect>
+            <text x="24" y="31" text-anchor="middle" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="800" fill="#071018">S</text>
+          </svg>
+        </div>
         <div>Serviko</div>
       </a>
 
       <nav class="navlinks" aria-label="Navigation">
+        <a href="#categories">Services</a>
         <a href="#comment">Comment ça marche</a>
         <a href="#pourquoi">Pourquoi Serviko</a>
-        <a href="#client">Espace client</a>
-        <a href="#independant">Espace indépendant</a>
+        <a href="signup.html">Espace client</a>
+        <a href="indep-signup.html">Espace indépendant</a>
         <a href="#contact">Contact</a>
       </nav>
     </header>
@@ -484,36 +531,39 @@
     <main id="top" class="hero">
       <div class="heroGrid">
         <div>
-          <span class="pill"><span class="dot"></span> Plateforme de services indépendants</span>
-          <h1>Commandez un service. <br/>Simplement.</h1>
-          <p class="sub">
-            Des indépendants. Des prix justes. <strong>Seulement 2% de frais.</strong><br/>
-            Site web, logo, vidéo, rédaction… en quelques clics.
+          <span class="pill fadeUp"><span class="dot"></span> Services indépendants, en 2 minutes</span>
+          <h1 class="fadeUp delay-1">Un service clair.<br/>Un indépendant adapté.</h1>
+          <p class="sub fadeUp delay-2">
+            Dites ce dont vous avez besoin, Serviko trouve le meilleur indépendant disponible.
+            <strong>2% de commission</strong> pour une livraison sécurisée et validée par un admin.
           </p>
 
-          <div class="ctaRow">
-            <a class="btn primary" href="#categories">Trouver un service</a>
-            <a class="btn" href="#pro">Proposer mes services</a>
+          <div class="serviceRow fadeUp delay-2">
+            <span class="serviceTag">Site web</span>
+            <span class="serviceTag">Logo & design</span>
+            <span class="serviceTag">Vidéo & montage</span>
+            <span class="serviceTag">Rédaction</span>
+            <span class="serviceTag">Marketing</span>
           </div>
 
-          <div class="ctaRow" style="margin-top:12px">
-            <a class="btn" href="request.html">Déposer une demande</a>
-            <a class="btn" href="#pourquoi">Voir les 2% en détail</a>
+          <div class="ctaRow fadeUp delay-3">
+            <a class="btn primary" href="request.html">Déposer une demande</a>
+            <a class="btn" href="#categories">Voir les services</a>
           </div>
         </div>
 
-        <aside class="kpiCard" aria-label="Frais et avantages">
+        <aside class="kpiCard fadeUp delay-2" aria-label="Pourquoi Serviko">
           <div class="kpiTop">
             <div class="badge2">✅ <small>Commission</small> 2%</div>
-            <div style="color:var(--muted); font-weight:800">Transparent</div>
+            <div style="color:var(--muted); font-weight:800">Sécurisé</div>
           </div>
           <div class="bigNum">2%</div>
-          <div class="kpiText">Pas d’abonnement. Pas de frais cachés. Vous gardez l’essentiel.</div>
+          <div class="kpiText">Seulement 2% pour une mise en relation rapide et sûre.</div>
 
-          <div class="kpiList">
-            <div class="check"><span>✓</span> <div>Indépendants : <em>vous gardez 98%</em></div></div>
-            <div class="check"><span>✓</span> <div>Clients : <em>moins cher, plus direct</em></div></div>
-            <div class="check"><span>✓</span> <div>Plateforme : <em>simple, sans blabla</em></div></div>
+          <div class="valueList">
+            <div class="valueItem"><span>✓</span> <div>Livraison sécurisée : <em>validation par un admin avant paiement.</em></div></div>
+            <div class="valueItem"><span>✓</span> <div>Matching intelligent : <em>le meilleur indépendant pour votre demande.</em></div></div>
+            <div class="valueItem"><span>✓</span> <div>Simple & rapide : <em>déposez, échangez, lancez.</em></div></div>
           </div>
         </aside>
       </div>
@@ -579,79 +629,6 @@
       </div>
     </section>
 
-    <!-- DOUBLE ESPACE -->
-    <section id="espace" class="section">
-      <div class="sectionTitle">
-        <h2>Deux espaces, une seule plateforme</h2>
-        <div class="hint">Clients et indépendants, chacun son parcours.</div>
-      </div>
-
-      <div class="splitIntro">
-        <article class="splitCard">
-          <div class="splitHeader">
-            <strong>Espace client</strong>
-            <span class="chip">Je cherche une prestation</span>
-          </div>
-          <p class="sub" style="margin:0">Choisissez votre besoin, répondez à un mini QCM et Serviko propose l’indépendant le plus adapté.</p>
-          <ul>
-            <li>✅ <small>Questionnaire rapide</small></li>
-            <li>✅ <small>Proposition de prix instantanée</small></li>
-            <li>✅ <small>Comparatif d’indépendants</small></li>
-          </ul>
-          <button class="btn primary" type="button" data-journey="client">Accéder à l’espace client</button>
-        </article>
-
-        <article class="splitCard">
-          <div class="splitHeader">
-            <strong>Espace indépendant</strong>
-            <span class="chip">Je propose mes services</span>
-          </div>
-          <p class="sub" style="margin:0">Mettez en avant vos compétences, recevez des demandes filtrées et validez le prix proposé.</p>
-          <ul>
-            <li>✅ <small>Profil + avis + points forts</small></li>
-            <li>✅ <small>Projets compatibles seulement</small></li>
-            <li>✅ <small>Prix négociable en direct</small></li>
-          </ul>
-          <button class="btn" type="button" data-journey="indep">Accéder à l’espace indépendant</button>
-        </article>
-      </div>
-    </section>
-
-    <!-- FLOW -->
-    <section id="parcours" class="section">
-      <div class="sectionTitle">
-        <h2>Parcours simple : du besoin à la mise en relation</h2>
-        <div class="hint">On garde l’ADN Serviko : rapide, clair, sans friction.</div>
-      </div>
-
-      <div class="flow">
-        <div class="flowSteps">
-          <div class="flowStep">
-            <strong>1. Choix du service</strong>
-            <p class="hint">Site, logo, vidéo… vous sélectionnez dès l’accueil.</p>
-          </div>
-          <div class="flowStep">
-            <strong>2. Mini QCM</strong>
-            <p class="hint">3–4 questions pour clarifier besoin, budget, délai.</p>
-          </div>
-          <div class="flowStep">
-            <strong>3. Match intelligent</strong>
-            <p class="hint">L’algorithme propose les profils les plus adaptés.</p>
-          </div>
-          <div class="flowStep">
-            <strong>4. Prix négocié</strong>
-            <p class="hint">Serviko propose un prix, les deux côtés ajustent.</p>
-          </div>
-        </div>
-
-        <div class="flowCard">
-          <strong>Recommandation intelligente</strong>
-          <p class="hint">Après la qualification du besoin, l’algorithme recommande le meilleur indépendant pour votre projet.</p>
-          <button class="btn primary" type="button" data-journey="qcm">Lancer la recommandation</button>
-        </div>
-      </div>
-    </section>
-
     <!-- HOW IT WORKS -->
     <section id="comment" class="section">
       <div class="sectionTitle">
@@ -705,160 +682,7 @@
             <li>✅ <small>Fixez vos prix</small></li>
             <li>✅ <small>Vous gardez 98% de vos gains</small></li>
           </ul>
-          <button class="btn primary" type="button" id="btnBecome">Devenir indépendant sur Serviko</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- CLIENT SPACE -->
-    <section id="client" class="section">
-      <div class="sectionTitle">
-        <h2>Espace client</h2>
-        <div class="hint">Compte client séparé : demandes, suivi et validations.</div>
-      </div>
-
-      <div class="note">
-        ✅ Un compte client pour commander, un compte indépendant pour vendre. Deux tableaux de bord distincts.
-      </div>
-
-      <div class="clientGrid" style="margin-top:12px">
-        <article class="clientCard">
-          <h3>Créer un compte client</h3>
-          <p>Inscription rapide pour déposer une demande.</p>
-          <ul>
-            <li>✅ <small>Brief & budget</small></li>
-            <li>✅ <small>Suivi des prestations</small></li>
-            <li>✅ <small>Validation livraison</small></li>
-          </ul>
-          <a class="btn primary" href="signup.html">S’inscrire</a>
-        </article>
-
-        <article class="clientCard">
-          <h3>Connexion client</h3>
-          <p>Retrouvez vos échanges et devis.</p>
-          <ul>
-            <li>✅ <small>Messagerie centralisée</small></li>
-            <li>✅ <small>Historique des services</small></li>
-            <li>✅ <small>Factures</small></li>
-          </ul>
-          <a class="btn" href="login.html">Connexion</a>
-        </article>
-
-        <article class="clientCard">
-          <h3>Tableau de bord client</h3>
-          <p>Suivez vos demandes en temps réel.</p>
-          <ul>
-            <li>✅ <small>Statuts projets</small></li>
-            <li>✅ <small>Validation livrables</small></li>
-            <li>✅ <small>Support client</small></li>
-          </ul>
-          <a class="btn" href="dashboard.html">Voir mon espace</a>
-        </article>
-      </div>
-      <div class="ctaRow" style="margin-top:14px">
-        <a class="btn primary" href="request.html">Déposer une demande</a>
-        <a class="btn" href="dashboard.html">Voir mes demandes</a>
-      </div>
-    </section>
-
-    <!-- INDEPENDANT SPACE -->
-    <section id="independant" class="section">
-      <div class="sectionTitle">
-        <h2>Espace indépendant</h2>
-        <div class="hint">Compte indépendant séparé : profil, revenus et missions.</div>
-      </div>
-
-      <div class="note">
-        ✅ Un espace dédié aux indépendants pour gérer le profil, les prestations et les revenus.
-      </div>
-
-      <div class="clientGrid" style="margin-top:12px">
-        <article class="clientCard">
-          <h3>Créer un compte indépendant</h3>
-          <p>Inscription complète pour publier vos services.</p>
-          <ul>
-            <li>✅ <small>Profil & compétences</small></li>
-            <li>✅ <small>Tarifs & disponibilités</small></li>
-            <li>✅ <small>Identité vérifiée</small></li>
-          </ul>
-          <a class="btn primary" href="indep-signup.html">S’inscrire</a>
-        </article>
-
-        <article class="clientCard">
-          <h3>Connexion indépendant</h3>
-          <p>Accédez à vos missions et revenus.</p>
-          <ul>
-            <li>✅ <small>Demandes filtrées</small></li>
-            <li>✅ <small>Suivi des revenus</small></li>
-            <li>✅ <small>Avis clients</small></li>
-          </ul>
-          <a class="btn" href="indep-login.html">Connexion</a>
-        </article>
-
-        <article class="clientCard">
-          <h3>Tableau de bord indépendant</h3>
-          <p>Gérez vos prestations et votre chiffre d’affaires.</p>
-          <ul>
-            <li>✅ <small>Revenus mensuels</small></li>
-            <li>✅ <small>Demandes actives</small></li>
-            <li>✅ <small>Profil public</small></li>
-          </ul>
-          <a class="btn" href="indep-dashboard.html">Voir mon espace</a>
-        </article>
-      </div>
-    </section>
-
-    <!-- CALCULATOR -->
-    <section id="simulateur" class="section">
-      <div class="sectionTitle">
-        <h2>Simulateur de commission</h2>
-        <div class="hint">Vérifiez en 2 secondes ce que vous gardez.</div>
-      </div>
-
-      <div class="card calc">
-        <div class="calcRow">
-          <label for="calcAmount" class="hint">Montant du service (€)</label>
-          <input id="calcAmount" type="number" min="0" step="10" value="300" />
-        </div>
-        <div class="calcRow">
-          <span class="hint">Commission Serviko (2%)</span>
-          <span class="calcResult" id="calcFee">€6</span>
-        </div>
-        <div class="calcRow">
-          <span class="hint">Vous gardez</span>
-          <span class="calcResult" id="calcNet">€294</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section id="faq" class="section">
-      <div class="sectionTitle">
-        <h2>Questions fréquentes</h2>
-        <div class="hint">Des réponses courtes, comme Serviko.</div>
-      </div>
-
-      <div class="faq">
-        <div class="faqItem">
-          <button class="faqQuestion" type="button">
-            Comment se passe le paiement ?
-            <span>+</span>
-          </button>
-          <div class="faqAnswer">Le client paie via la plateforme. L’indépendant est payé dès la livraison validée.</div>
-        </div>
-        <div class="faqItem">
-          <button class="faqQuestion" type="button">
-            Pourquoi seulement 2% ?
-            <span>+</span>
-          </button>
-          <div class="faqAnswer">Serviko est pensé minimaliste : pas d’intermédiaires inutiles, donc des frais réduits.</div>
-        </div>
-        <div class="faqItem">
-          <button class="faqQuestion" type="button">
-            Puis-je échanger avant de commander ?
-            <span>+</span>
-          </button>
-          <div class="faqAnswer">Oui. Messagerie directe pour clarifier le besoin, délai, et prix.</div>
+          <a class="btn primary" href="indep-signup.html">Devenir indépendant sur Serviko</a>
         </div>
       </div>
     </section>
@@ -896,19 +720,6 @@
     </footer>
   </div>
 
-  <!-- MODAL (optionnel) -->
-  <div class="modalBackdrop" id="modalBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modalHeader">
-        <div>
-          <h3 id="modalTitle">Bienvenue sur Serviko 👋</h3>
-          <p id="modalText">Ici, tu pourras créer ton profil indépendant et proposer tes services.</p>
-        </div>
-        <button class="close" id="btnClose" type="button">Fermer</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // Année
     document.getElementById("year").textContent = new Date().getFullYear();
@@ -917,56 +728,7 @@
     const cats = document.querySelectorAll(".cat");
     const catSearch = document.getElementById("catSearch");
     const catCount = document.getElementById("catCount");
-    const modalBackdrop = document.getElementById("modalBackdrop");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalText = document.getElementById("modalText");
-    const btnClose = document.getElementById("btnClose");
-    const btnBecome = document.getElementById("btnBecome");
-    const journeyButtons = document.querySelectorAll("[data-journey]");
-    const faqButtons = document.querySelectorAll(".faqQuestion");
-    const calcAmount = document.getElementById("calcAmount");
-    const calcFee = document.getElementById("calcFee");
-    const calcNet = document.getElementById("calcNet");
-    const serviceCards = document.querySelectorAll(".serviceCard");
-    const activeCategory = document.getElementById("activeCategory");
-    const clearCategory = document.getElementById("clearCategory");
-    const serviceCount = document.getElementById("serviceCount");
-    const noServices = document.getElementById("noServices");
     const contactForm = document.getElementById("contactForm");
-
-    function openModal(title, text){
-      modalTitle.textContent = title;
-      modalText.textContent = text;
-      modalBackdrop.style.display = "flex";
-      modalBackdrop.setAttribute("aria-hidden", "false");
-    }
-    function closeModal(){
-      modalBackdrop.style.display = "none";
-      modalBackdrop.setAttribute("aria-hidden", "true");
-    }
-
-    btnBecome.addEventListener("click", () => {
-      openModal("Devenir indépendant", "Exemple : rediriger vers la page d'inscription / création de profil.");
-    });
-
-    journeyButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const journey = btn.getAttribute("data-journey");
-        const messages = {
-          client: "Accès client : déposez votre demande et suivez les livrables en temps réel.",
-          indep: "Accès indépendant : complétez votre profil et recevez des missions adaptées.",
-          qcm: "Votre besoin est enregistré. L’algorithme recommande le meilleur indépendant."
-        };
-        openModal("Parcours Serviko", messages[journey] || "Parcours Serviko en préparation.");
-      });
-    });
-
-    faqButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const item = btn.closest(".faqItem");
-        item.classList.toggle("open");
-      });
-    });
 
     function updateCatCount(visible){
       const total = cats.length;
@@ -988,38 +750,13 @@
       });
     }
 
-    function updateCalc(){
-      const amount = Number(calcAmount.value || 0);
-      const fee = Math.max(0, amount * 0.02);
-      const net = Math.max(0, amount - fee);
-      calcFee.textContent = `€${fee.toFixed(2)}`;
-      calcNet.textContent = `€${net.toFixed(2)}`;
-    }
-
-    if (calcAmount){
-      updateCalc();
-      calcAmount.addEventListener("input", updateCalc);
-    }
-
-    if (serviceCards.length){
-      filterServices("");
-    }
-
     if (contactForm){
       contactForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        openModal("Message envoyé", "Merci ! Nous revenons vers vous rapidement.");
+        alert("Merci ! Nous revenons vers vous rapidement.");
         contactForm.reset();
       });
     }
-
-    btnClose.addEventListener("click", closeModal);
-    modalBackdrop.addEventListener("click", (e) => {
-      if(e.target === modalBackdrop) closeModal();
-    });
-    window.addEventListener("keydown", (e) => {
-      if(e.key === "Escape") closeModal();
-    });
   </script>
 </body>
 </html>
