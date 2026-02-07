@@ -44,7 +44,9 @@
       box-shadow: 0 10px 24px rgba(96,165,250,.2);
       display:grid; place-items:center;
       font-weight:900; color:#071018;
+      overflow:hidden;
     }
+    .logo svg{width:100%; height:100%; display:block}
     .navlinks{display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-weight:600}
     .navlinks a{padding:8px 10px; border-radius:12px}
     .navlinks a:hover{background:rgba(255,255,255,.06); color:var(--text)}
@@ -78,7 +80,7 @@
       pointer-events:none;
     }
     .hero > *{position:relative}
-    .heroGrid{display:grid; grid-template-columns: 1.15fr .85fr; gap:18px; align-items:start}
+    .heroGrid{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px; align-items:start}
     @media (max-width: 900px){ .heroGrid{grid-template-columns:1fr} }
 
     h1{
@@ -94,6 +96,13 @@
       max-width: 60ch;
     }
     .ctaRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    .serviceRow{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+    .serviceTag{
+      padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,24,39,.55);
+      font-weight:700; color:var(--text);
+    }
     .btn{
       display:inline-flex; align-items:center; justify-content:center; gap:10px;
       padding:12px 14px;
@@ -121,6 +130,22 @@
       padding:18px;
       display:grid; gap:10px;
       backdrop-filter: blur(8px);
+    }
+    .valueList{display:grid; gap:10px; margin-top:12px}
+    .valueItem{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      font-weight:700;
+    }
+    .valueItem span{
+      width:22px; height:22px; border-radius:8px;
+      display:grid; place-items:center;
+      background: rgba(96,165,250,.12);
+      border:1px solid rgba(96,165,250,.18);
+      flex:0 0 auto;
+      font-size:14px;
     }
     .kpiTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
     .badge2{
@@ -168,11 +193,11 @@
 
     .grid5{
       display:grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap:12px;
     }
-    @media (max-width: 980px){ .grid5{grid-template-columns: repeat(3, 1fr)} }
-    @media (max-width: 640px){ .grid5{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 980px){ .grid5{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .grid5{grid-template-columns: 1fr} }
 
     .cat{
       border:1px solid rgba(255,255,255,.10);
@@ -467,7 +492,18 @@
     <!-- NAV -->
     <header class="nav">
       <a class="brand" href="#top" aria-label="Serviko">
-        <div class="logo">S</div>
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="img" aria-label="Serviko logo">
+            <defs>
+              <linearGradient id="servikoGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#60a5fa"/>
+                <stop offset="100%" stop-color="#22c55e"/>
+              </linearGradient>
+            </defs>
+            <rect width="48" height="48" rx="12" fill="url(#servikoGradient)"></rect>
+            <text x="24" y="31" text-anchor="middle" font-size="22" font-family="Segoe UI, Arial, sans-serif" font-weight="800" fill="#071018">S</text>
+          </svg>
+        </div>
         <div>Serviko</div>
       </a>
 
@@ -484,36 +520,39 @@
     <main id="top" class="hero">
       <div class="heroGrid">
         <div>
-          <span class="pill"><span class="dot"></span> Plateforme de services indépendants</span>
-          <h1>Commandez un service. <br/>Simplement.</h1>
+          <span class="pill"><span class="dot"></span> Services indépendants, en 2 minutes</span>
+          <h1>Un service clair.<br/>Un indépendant adapté.</h1>
           <p class="sub">
-            Des indépendants. Des prix justes. <strong>Seulement 2% de frais.</strong><br/>
-            Site web, logo, vidéo, rédaction… en quelques clics.
+            Dites ce dont vous avez besoin, Serviko trouve le meilleur indépendant disponible.
+            <strong>2% de commission</strong> pour une livraison sécurisée et validée par un admin.
           </p>
 
-          <div class="ctaRow">
-            <a class="btn primary" href="#categories">Trouver un service</a>
-            <a class="btn" href="#pro">Proposer mes services</a>
+          <div class="serviceRow">
+            <span class="serviceTag">Site web</span>
+            <span class="serviceTag">Logo & design</span>
+            <span class="serviceTag">Vidéo & montage</span>
+            <span class="serviceTag">Rédaction</span>
+            <span class="serviceTag">Marketing</span>
           </div>
 
-          <div class="ctaRow" style="margin-top:12px">
-            <a class="btn" href="request.html">Déposer une demande</a>
-            <a class="btn" href="#pourquoi">Voir les 2% en détail</a>
+          <div class="ctaRow">
+            <a class="btn primary" href="request.html">Déposer une demande</a>
+            <a class="btn" href="#categories">Voir les services</a>
           </div>
         </div>
 
-        <aside class="kpiCard" aria-label="Frais et avantages">
+        <aside class="kpiCard" aria-label="Pourquoi Serviko">
           <div class="kpiTop">
             <div class="badge2">✅ <small>Commission</small> 2%</div>
-            <div style="color:var(--muted); font-weight:800">Transparent</div>
+            <div style="color:var(--muted); font-weight:800">Sécurisé</div>
           </div>
           <div class="bigNum">2%</div>
-          <div class="kpiText">Pas d’abonnement. Pas de frais cachés. Vous gardez l’essentiel.</div>
+          <div class="kpiText">Seulement 2% pour une mise en relation rapide et sûre.</div>
 
-          <div class="kpiList">
-            <div class="check"><span>✓</span> <div>Indépendants : <em>vous gardez 98%</em></div></div>
-            <div class="check"><span>✓</span> <div>Clients : <em>moins cher, plus direct</em></div></div>
-            <div class="check"><span>✓</span> <div>Plateforme : <em>simple, sans blabla</em></div></div>
+          <div class="valueList">
+            <div class="valueItem"><span>✓</span> <div>Livraison sécurisée : <em>validation par un admin avant paiement.</em></div></div>
+            <div class="valueItem"><span>✓</span> <div>Matching intelligent : <em>le meilleur indépendant pour votre demande.</em></div></div>
+            <div class="valueItem"><span>✓</span> <div>Simple & rapide : <em>déposez, échangez, lancez.</em></div></div>
           </div>
         </aside>
       </div>
