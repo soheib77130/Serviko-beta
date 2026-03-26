@@ -1,0 +1,17 @@
+# env
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+node_modules/
+
+# Build
+build/
+dist/
+
+# Misc
+.DS_Store
+*.log
