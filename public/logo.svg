@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+  </defs>
+  <rect rx="8" width="40" height="40" fill="url(#g)" />
+  <path d="M12 10 C8 10 6 13 6 16 C6 22 14 22 14 18 C14 15 11 14 9 14" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(6,6)"/>
+  <text x="56" y="26" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="18" fill="#e6eef8">Serviko</text>
+</svg>
